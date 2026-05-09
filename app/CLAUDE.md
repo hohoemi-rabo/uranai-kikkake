@@ -1,0 +1,142 @@
+# app/CLAUDE.md
+
+`app/` 配下(Expo Router、画面、UI コンポーネント)で作業するときのガイド。
+
+## ルーティング(Expo Router v6)
+
+- `app/_layout.tsx` がルート Stack。`(tabs)` グループと `modal` を持つ。
+- 認証ガードは `app/(auth)/` と `app/(main)/` のグループ分割で実装(REQUIREMENTS §4.1, §5.5)。
+- `app.config.ts` で `experiments.typedRoutes: true` を有効化済み。新しいルートを追加したら一度 dev server を回して `.expo/types` を再生成。
+- `scheme: "uranaikikkake"` がディープリンク用。
+- 画面遷移は `router.push` / `router.replace` を使い分ける(履歴に残すか否か)。プレビュー → 結果は `replace` 推奨。
+
+### 認証ガードのパターン
+
+```tsx
+// app/(auth)/_layout.tsx
+if (isAuthenticated) return <Redirect href="/(main)" />;
+
+// app/(main)/_layout.tsx
+if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
+```
+
+`typedRoutes: true` 有効時は `href` も型チェックされる。
+
+## React Compiler 有効下のコーディング
+
+`app.config.ts` で `experiments.reactCompiler: true`。
+
+- **`useMemo` / `useCallback` / `React.memo` は書かない**。コンパイラが自動で最適化する。書いてあるとコンパイラが介入を諦めるケースがある。
+- ただし `useEffect` の依存配列など副作用のあるフックは従来通り正しく書く。
+- 条件付きフック呼び出しなどは引き続き禁止(Rules of React)。
+
+## NativeWind v4 とテーマ
+
+- Tailwind 文法でスタイル指定。Web 版資産を流用しやすい。
+- アクセントカラーは `tailwind.config.js` の `theme.extend.colors` に `charm` / `palm` / `match` を定義する。
+- ベース背景は `bg-sky-50`、カードは `bg-white` か `bg-slate-50`、開運アイテムは `bg-amber-50`、アドバイスは `bg-emerald-50`(REQUIREMENTS §5.1.1)。
+
+### タブごとのアクセントカラー
+
+| タブ | アクセント | クラス例 |
+|------|----------|--------|
+| 🌟 魅力発見 | コーラルピンク `rose-400` | `bg-rose-400`、`border-rose-400` |
+| ✋ 手相 | ティール `teal-400` | `bg-teal-400`、`border-teal-400` |
+| 💖 相性 | オレンジ `orange-400` | `bg-orange-400`、`border-orange-400` |
+
+タブ選択時に連動する要素: 撮影フレームの枠線・カメラ起動ボタン・「占ってみる」ボタン背景・結果見出し・カード左ボーダー・ヒントテキストの点滅(REQUIREMENTS §5.1.2)。
+
+## フォント
+
+- **M PLUS Rounded 1c**(400/700/900)を `expo-font` で読み込み。
+- `SplashScreen.preventAutoHideAsync()` でフォント読み込み完了まで待機。
+- 直接 `fontFamily` を当てるか、`tailwind.config.js` の `fontFamily.rounded` 経由で。
+
+## シニア配慮 UI(必須)
+
+- ボタンは最低 `p-5` `text-lg` 以上
+- 明るくコントラストの高い色 — **ダークモードは採用しない**
+- 平易な日本語(「カメラを切り替える」「ここに顔を合わせてね」)
+- 絵文字+文字で視覚的に伝える
+- 通知許可リクエストはしない(ほほ笑みラボ方針)
+- ローディング時は控えめなスピナー(派手なアニメ NG)
+
+## ライブラリ別パターン
+
+### expo-camera
+
+`useCameraPermissions` フックで 3 状態(loading / not granted / granted)を必ずハンドル。`Camera.requestCameraPermissionsAsync()` 直叩きはしない。
+
+```tsx
+import { CameraView, useCameraPermissions } from 'expo-camera';
+const [permission, requestPermission] = useCameraPermissions();
+if (!permission) return null; // loading
+if (!permission.granted) return <RequestPermissionUI onPress={requestPermission} />;
+return <CameraView facing={facing} />;
+```
+
+iOS シミュレータでは動作しない。**実機テスト必須**。
+
+### expo-image-picker / expo-image-manipulator
+
+- 画像選択は `launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 })`(リサイズは送信前にまとめて)
+- HEIC は `expo-image-manipulator` の自動変換で JPG になるため専用ライブラリ不要
+- API 送信前は **長辺 1024px / quality 0.8 / JPEG / base64**(REQUIREMENTS §4.3.2)
+- `data:image/jpeg;base64,` プレフィックスは含めない(Workers が直接 Gemini に渡す)
+
+### expo-secure-store
+
+ID トークン保管に必ず使う。`AsyncStorage` ではない。iOS は Keychain、Android は EncryptedSharedPreferences。
+
+```tsx
+await SecureStore.setItemAsync('idToken', token);
+const token = await SecureStore.getItemAsync('idToken');
+```
+
+`AsyncStorage` はオンボーディング完了フラグなど非機密データ専用。
+
+### expo-speech
+
+- `language: 'ja-JP'`、`rate: 1.0`、`pitch: 1.0`(REQUIREMENTS §4.5.1)
+- 画面アンマウント時に `Speech.stop()` を `useEffect` cleanup で必ず呼ぶ
+- 再生中状態はローカル `useState` でトラック(`isSpeakingAsync` は遅延あり)
+- 長文は句点で分割して `speak` を複数回呼ぶ方が安定
+
+### react-native-view-shot + expo-media-library
+
+結果カードを画像化してカメラロールに保存(REQUIREMENTS §4.5.2):
+- `captureRef` はレンダリング完了後に呼ぶ
+- 画像サイズは 1080px 幅固定
+- 保存前に `MediaLibrary.requestPermissionsAsync()`
+- iOS の Limited Photos モードでも `saveToLibraryAsync` は動く
+
+## Config Plugins(`app.config.ts` で集約)
+
+権限文言は `Info.plist` 直接編集ではなく **plugin 設定**で管理する。文言変更は **JS リロードでは反映されない** → `npx expo prebuild --clean` + ネイティブビルド。
+
+```jsonc
+plugins: [
+  "expo-router",
+  ["expo-camera", { "cameraPermission": "...", "microphonePermission": false, "recordAudioAndroid": false }],
+  ["expo-image-picker", { "photosPermission": "...", "cameraPermission": "...", "microphonePermission": false }],
+  ["expo-media-library", { "photosPermission": "...", "savePhotosPermission": "..." }]
+]
+```
+
+## New Architecture
+
+`newArchEnabled: true`。ネイティブモジュールの追加・削除や plugin 設定の変更時は:
+
+```bash
+npx expo prebuild --clean
+npx expo run:ios   # or run:android
+```
+
+Expo Go では再現できないクラッシュは New Arch 互換性が原因のことが多い。
+
+## デバッグ Tips
+
+- iOS シミュレータでは: Apple Sign In・カメラが動かない → 実機テスト
+- Android エミュレータ: ホスト PC のカメラを使う設定で動作確認可能
+- HEIC: ネイティブカメラ経由では発生しない(Expo が自動 JPG)
+- フォント未ロードのまま画面が出る場合は SplashScreen の `preventAutoHideAsync` を確認
