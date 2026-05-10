@@ -44,6 +44,30 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         backgroundColor: '#F0F9FF',
       },
     ],
+    [
+      'expo-camera',
+      {
+        cameraPermission: '人相・手相を診断するためにカメラを使用します',
+        microphonePermission: false,
+        recordAudioAndroid: false,
+      },
+    ],
+    [
+      'expo-image-picker',
+      {
+        photosPermission: 'お持ちの写真から診断するために使用します',
+        cameraPermission: '人相・手相を診断するためにカメラを使用します',
+        microphonePermission: false,
+      },
+    ],
+    [
+      'expo-media-library',
+      {
+        photosPermission: 'お持ちの写真から診断するために使用します',
+        savePhotosPermission: '診断結果の画像を保存します',
+        isAccessMediaLocationEnabled: false,
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,
