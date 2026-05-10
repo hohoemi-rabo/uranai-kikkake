@@ -4,14 +4,16 @@ import {
   MPLUSRounded1c_900Black,
   useFonts,
 } from '@expo-google-fonts/m-plus-rounded-1c';
-import { Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { Colors } from '@/constants/theme';
+import { getOnboardingCompleted } from '@/lib/onboarding';
 import '../global.css';
 
 export const unstable_settings = {
@@ -27,17 +29,24 @@ export default function RootLayout() {
     MPLUSRounded1c_700Bold,
     MPLUSRounded1c_900Black,
   });
+  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (loaded || error) {
+    getOnboardingCompleted()
+      .then(setOnboardingDone)
+      .catch(() => setOnboardingDone(false));
+  }, []);
+
+  useEffect(() => {
+    if ((loaded || error) && onboardingDone !== null) {
       SplashScreen.hideAsync().catch(() => {});
     }
-  }, [loaded, error]);
+  }, [loaded, error, onboardingDone]);
 
-  if (!loaded && !error) return null;
+  if ((!loaded && !error) || onboardingDone === null) return null;
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack
         screenOptions={{
           headerShown: false,
@@ -45,8 +54,10 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
       </Stack>
+      {!onboardingDone && <Redirect href="/onboarding" />}
       <StatusBar style="dark" />
-    </>
+    </GestureHandlerRootView>
   );
 }
