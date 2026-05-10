@@ -56,7 +56,7 @@ export default function OnboardingScreen() {
 
   const handleFinish = async () => {
     await setOnboardingCompleted();
-    router.replace('/');
+    router.replace('/(auth)/login');
   };
 
   const swipe = Gesture.Pan()

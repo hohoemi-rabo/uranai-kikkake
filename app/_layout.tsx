@@ -54,9 +54,9 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="(auth)" />
       </Stack>
-      {!onboardingDone && <Redirect href="/onboarding" />}
+      {!onboardingDone && <Redirect href="/(auth)/onboarding" />}
       <StatusBar style="dark" />
     </GestureHandlerRootView>
   );
