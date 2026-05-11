@@ -1,7 +1,8 @@
-import { Redirect, Tabs } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 
 import { Colors } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { UsageProvider } from '@/hooks/useUsage';
 
 export default function MainLayout() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -9,19 +10,13 @@ export default function MainLayout() {
   if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: Colors.charm,
-        tabBarStyle: { backgroundColor: Colors.background },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'ホーム',
+    <UsageProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: Colors.background },
         }}
       />
-    </Tabs>
+    </UsageProvider>
   );
 }
