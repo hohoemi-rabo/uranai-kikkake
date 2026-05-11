@@ -165,3 +165,16 @@ dev / 本番で同じ secret 名を使うが、**本番では `DEV_BYPASS_ENABLE
 - **ログには `maskSub(sub)`(先頭 4 文字 + `****`)**: 完全な sub をログに出さない(個人識別子の最小化、§7.3)。`console.log` は Cloudflare Logs に出るので生 sub は痕跡が残る
 - **`req.json()` は 1 度しか呼べない**: ストリームが consume されるので、`provider` 抽出と後段の `mode`/`imageBase64` 抽出は **同じ body 変数から**取り出す。09/10 はその前提で body を `let body: { provider, mode, imageBase64 }` 形式に拡張する
 - **`jose` の `audience` は配列で複数許可**: Google は iOS/Android/Web の 3 つの Client ID を全部許可する必要がある。`GOOGLE_CLIENT_IDS` をカンマ区切りで投入し、`.split(',')` で配列化して渡す
+
+## チケット 09 完了時の知見
+
+- **JST 日付計算は `Date.now() + 9h` + UTC ISO の slice**: Workers ランタイムの `Intl.DateTimeFormat` の TZ サポートは限定的(対応していてもバンドルサイズ増)。`new Date(now + 9*3600*1000).toISOString().slice(0,10)` の方が確実かつ軽い
+- **`nextJstMidnightIso` は `YYYY-MM-DDT00:00:00Z` を parse → setUTCDate +1**: 直接 `new Date(jstStr + '+09:00')` を作るとパース挙動がエンジン依存。一度 UTC midnight に揃えてから日付演算する方が安全
+- **`UsageRecord` は壊れていたら count=0 扱い**: `JSON.parse` 失敗・型不正でもクラッシュさせない。MVP の堅牢性優先で、悪意ある書き込みより自然破損(古いスキーマ等)への対応
+- **`incrementUsage` の TTL は毎回更新**: `put` のたびに `expirationTtl: 60*60*48` を渡すので、同日中の連続アクセスで TTL が伸びる。問題ない理由 = キー名に日付が含まれるため、翌日 00:00 以降は別キーが使われ、古いキーは TTL 終了で自動削除される
+- **KV は eventual consistency**: 同時タップで競合した場合、両方が count=2 を読んで count=3 を書く可能性あり。**3 回制限の目的なら誤差 1 回は許容**(REQUIREMENTS の技術メモに従う)。厳密な ACID が必要になったら Durable Objects に切り替え
+- **ローカル KV state の場所**: `workers/.wrangler/state/v3/kv/` 配下。テスト時のリセットは `rm -rf .wrangler/state`。コミットしない(`.gitignore` で除外済み)
+- **429 は `RATE_LIMIT_EXCEEDED` 専用ステータス**: クライアント `lib/api.ts` の **401 自動ログアウトと混同しない**こと。クライアント側で 429 を受けたら「今日はもう3回占いました」表示で signOut させない(404・500 も同様)
+- **`incrementUsage` の位置は処理成功後**: 10 で Gemini 呼び出しが入ったら、Gemini 失敗時に increment しないよう try/catch で囲う。**失敗時にカウンターを増やさない**ことでユーザーを保護
+- **`resetAt` は固定タイムゾーンオフセット `+09:00`**: JST はサマータイム無しなので 1 年中 +09:00。`Asia/Tokyo` の長い名前は使わない(ISO 8601 標準は数値オフセットのみ)
+- **`usage: { today, max }` を返すかどうかで構造が決まる**: 11 のホーム画面で「今日の残り: max-today」を表示する前提なので、200 レスポンスには必ず付ける。429 では既に上限なので不要(`resetAt` だけあれば足りる)

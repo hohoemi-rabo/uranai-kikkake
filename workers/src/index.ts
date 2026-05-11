@@ -1,4 +1,5 @@
 import { AuthError, maskSub, verifyToken, type Provider } from './auth';
+import { MAX_PER_DAY, getUsage, incrementUsage, nextJstMidnightIso } from './kv';
 
 export interface Env {
   USAGE_KV: KVNamespace;
@@ -97,11 +98,34 @@ export default {
 
       console.log(`auth ok: provider=${auth.provider} sub=${maskSub(auth.sub)}`);
 
+      const usage = await getUsage(env, auth.provider, auth.sub);
+      if (usage.count >= MAX_PER_DAY) {
+        console.log(
+          `rate limit: provider=${auth.provider} sub=${maskSub(auth.sub)} count=${usage.count}`,
+        );
+        return jsonResponse(
+          {
+            error: 'RATE_LIMIT_EXCEEDED',
+            message: '今日はもう3回占いました。また明日会いましょう!',
+            resetAt: nextJstMidnightIso(),
+          },
+          { status: 429, headers: cors },
+        );
+      }
+
+      // チケット 10 で Gemini 呼び出しがここに入る
+
+      const updated = await incrementUsage(env, auth.provider, auth.sub, usage);
+      console.log(
+        `usage ok: provider=${auth.provider} sub=${maskSub(auth.sub)} count=${updated.count}/${MAX_PER_DAY}`,
+      );
+
       return jsonResponse(
         {
           status: 'ok',
           message: 'skeleton',
           endpoint: '/api/divine',
+          usage: { today: updated.count, max: MAX_PER_DAY },
         },
         { headers: cors },
       );
