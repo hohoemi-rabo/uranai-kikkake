@@ -7,7 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ModeFrameOverlay } from '@/components/CameraFrame';
 import { TabAccent, type TabKey } from '@/constants/theme';
-import { prepareForUpload } from '@/lib/image';
 
 function isTabKey(v: unknown): v is TabKey {
   return v === 'charm' || v === 'palm' || v === 'match';
@@ -78,20 +77,7 @@ export default function CameraScreen() {
         skipProcessing: true,
       });
       if (!photo) throw new Error('capture returned null');
-      // チケット 15 でプレビュー画面遷移に差し替え:
-      //   router.push({ pathname: '/(main)/preview', params: { mode, uri: photo.uri } });
-      const prepared = await prepareForUpload(photo.uri);
-      Alert.alert(
-        '撮影完了',
-        [
-          `URI: ${photo.uri}`,
-          `処理後: ${prepared.width}×${prepared.height} JPEG`,
-          `base64: ${prepared.sizeKb} kB`,
-          '',
-          'プレビュー画面はチケット 15 で実装予定です',
-        ].join('\n'),
-        [{ text: 'OK', onPress: () => router.back() }],
-      );
+      router.push({ pathname: '/(main)/preview', params: { mode, uri: photo.uri } });
     } catch (e) {
       console.error('camera capture error:', e);
       Alert.alert('エラー', '撮影に失敗しました。もう一度お試しください。');

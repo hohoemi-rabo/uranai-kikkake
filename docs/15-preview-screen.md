@@ -15,18 +15,18 @@
 
 ## TODO
 
-- [ ] `app/(main)/preview.tsx` 作成、`mode` と画像 `uri` を受け取る
-- [ ] 画像を `expo-image` で表示(キャッシュ ON)
-- [ ] 「📷 撮り直す」「占ってみる/魅力を発見する」ボタン(モードでテキスト切替)
-- [ ] `src/hooks/useDivine.ts`: `divine(mode, base64)` で Workers POST
-- [ ] `Authorization: Bearer {idToken}` ヘッダ、JSON body
-- [ ] エラーハンドリング:
+- [×] `app/(main)/preview.tsx` 作成、`mode` と画像 `uri` を受け取る
+- [×] 画像を `expo-image` で表示(キャッシュ ON)
+- [×] 「📷 撮り直す」「占ってみる/魅力を発見する」ボタン(モードでテキスト切替)
+- [×] `hooks/useDivine.ts`: `divine(mode, base64)` で Workers POST(フラット配置)
+- [×] `Authorization: Bearer {idToken}` ヘッダ、JSON body
+- [×] エラーハンドリング:
   - 401 → 自動ログアウト + ログイン画面
   - 429 → 「今日はもう3回占いました。また明日会いましょう!」モーダル
   - 502 / 5xx → 「もう一度お試しください」
   - ネットワーク → 「電波の良い場所でもう一度」
-- [ ] `src/components/AnalyzingOverlay.tsx`: 半透明背景 + アニメーションスピナー + 「診断中…」
-- [ ] 成功時 `router.replace({ pathname: '/result', params: { result: JSON.stringify(...) } })`
+- [×] `components/AnalyzingOverlay.tsx`: 半透明背景 + アニメーションスピナー + 「診断中…」(フラット配置)
+- [×] 成功時 `router.replace({ pathname: '/result', params: { result: JSON.stringify(...) } })`
 
 ## 受入基準
 
@@ -38,3 +38,6 @@
 
 - `router.replace` を使うことで結果画面から戻るとホームに戻る(プレビューを履歴に残さない)
 - API リクエストは中断不可で OK(タイムアウト 30 秒は Workers 側)
+- **成功時の遷移はチケット 16 で `router.replace` に差し替え**: 15 段階では Alert で結果 JSON を表示。`// チケット 16 で router.replace に差し替え` コメント残し
+- **`prepareForUpload`(14)の呼び出し位置は preview CTA タップ時**: プレビュー表示時に圧縮するとキャンセル時(撮り直し)に無駄。送信直前で OK
+- **`.env` を新規追加**: `EXPO_PUBLIC_API_BASE_URL` が無いと `apiFetch` のベース URL が空文字列で動かない。`.env` 変更後は `npx expo start --clear` で Metro キャッシュクリア必須

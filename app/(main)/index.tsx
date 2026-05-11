@@ -10,7 +10,6 @@ import { UsageBadge } from '@/components/UsageBadge';
 import { TabAccent, type TabKey } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useUsage } from '@/hooks/useUsage';
-import { prepareForUpload } from '@/lib/image';
 
 const TAB_BG: Record<TabKey, string> = {
   charm: 'bg-charm',
@@ -65,19 +64,7 @@ export default function HomeScreen() {
       if (result.canceled || !result.assets[0]) return;
 
       const uri = result.assets[0].uri;
-      // チケット 15 でプレビュー画面遷移に差し替え:
-      //   router.push({ pathname: '/(main)/preview', params: { mode: tab, uri } });
-      const prepared = await prepareForUpload(uri);
-      Alert.alert(
-        '画像選択完了',
-        [
-          `URI: ${uri}`,
-          `処理後: ${prepared.width}×${prepared.height} JPEG`,
-          `base64: ${prepared.sizeKb} kB`,
-          '',
-          'プレビュー画面はチケット 15 で実装予定です',
-        ].join('\n'),
-      );
+      router.push({ pathname: '/(main)/preview', params: { mode: tab, uri } });
     } catch (e) {
       console.error('image picker error:', e);
       Alert.alert('エラー', '画像の選択に失敗しました。もう一度お試しください。');
