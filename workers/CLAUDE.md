@@ -178,3 +178,17 @@ dev / 本番で同じ secret 名を使うが、**本番では `DEV_BYPASS_ENABLE
 - **`incrementUsage` の位置は処理成功後**: 10 で Gemini 呼び出しが入ったら、Gemini 失敗時に increment しないよう try/catch で囲う。**失敗時にカウンターを増やさない**ことでユーザーを保護
 - **`resetAt` は固定タイムゾーンオフセット `+09:00`**: JST はサマータイム無しなので 1 年中 +09:00。`Asia/Tokyo` の長い名前は使わない(ISO 8601 標準は数値オフセットのみ)
 - **`usage: { today, max }` を返すかどうかで構造が決まる**: 11 のホーム画面で「今日の残り: max-today」を表示する前提なので、200 レスポンスには必ず付ける。429 では既に上限なので不要(`resetAt` だけあれば足りる)
+
+## チケット 10 完了時の知見
+
+- **Gemini エンドポイント**: `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={API_KEY}`。POST、JSON body、`Content-Type: application/json`。モデル名は `MODEL` 定数(`workers/src/gemini.ts`)で集約管理
+- **`responseSchema` 強制で JSON は確実**: ただしフィールド漏れは `required` 配列で制御。`required` 漏れがあると `score` のように optional 扱いになり、`undefined` で返る可能性
+- **リトライは 4xx で即時失敗**: 認証ミス・content policy 違反・bad request はリトライしても直らない。429 と 5xx のみ対象。`shouldRetry(status)` で判定
+- **`AbortController` の `clearTimeout` は `finally`**: 早期 return / 例外で抜けても timer が残らないよう、必ず `try { ... } finally { clearTimeout(timer) }`
+- **失敗時 `incrementUsage` に到達しない構造**: `try { result = await callGemini(...) } catch { return ... }`。catch 側で必ず return することで「失敗時は KV カウンタを増やさない」を保証(09 の構造的位置確保が活きる)
+- **エラー詳細はクライアントに渡さない**: 502 のメッセージは固定文(`'Failed to generate result. Please try again.'`)。Gemini レスポンスにユーザー画像のメタや内部情報が混ざるリスクを遮断。500 misconfig は内部不備なので `e.message` をそのまま出してデバッグしやすく
+- **base64 をログに出さない**: `console.log` の引数に `imageBase64` を絶対に入れない。エラー詳細の `e.message` も 200 文字に切ってから出す(`text.slice(0, 200)`)
+- **プロンプトの分離**: `prompts.ts` で `Mode → string` のマップにしておくと 19 で差し替えるときに API 層(`gemini.ts`)を触らなくて済む。`gemini.ts` は `PROMPTS[mode]` を読むだけ
+- **`as const` で RESULT_SCHEMA を凍結**: `responseSchema` に渡すオブジェクトは `as const` でリテラル型固定にしておくと TypeScript の型推論が効きやすい
+- **モデル名は `gemini-3-flash-preview`(REQUIREMENTS §2.3)**: 1 行定数 `MODEL` で固定。バージョン上げ時はここだけ変更
+- **Cloudflare Workers の `setTimeout` は wall-clock 計測**: CPU 時間制限(50ms 〜 30s)とは別物。fetch 待ち中は CPU を使わないので 30 秒タイムアウトを安全に張れる

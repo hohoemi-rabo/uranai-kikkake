@@ -1,5 +1,7 @@
 import { AuthError, maskSub, verifyToken, type Provider } from './auth';
+import { GeminiError, callGemini } from './gemini';
 import { MAX_PER_DAY, getUsage, incrementUsage, nextJstMidnightIso } from './kv';
+import { isMode } from './prompts';
 
 export interface Env {
   USAGE_KV: KVNamespace;
@@ -58,9 +60,13 @@ export default {
     }
 
     if (url.pathname === '/api/divine' && req.method === 'POST') {
-      let body: { provider?: unknown };
+      let body: { provider?: unknown; mode?: unknown; imageBase64?: unknown };
       try {
-        body = (await req.json()) as { provider?: unknown };
+        body = (await req.json()) as {
+          provider?: unknown;
+          mode?: unknown;
+          imageBase64?: unknown;
+        };
       } catch {
         return jsonResponse(
           { error: 'BAD_REQUEST', message: 'Invalid JSON body' },
@@ -72,6 +78,21 @@ export default {
       if (!isProvider(provider)) {
         return jsonResponse(
           { error: 'BAD_REQUEST', message: 'provider must be stub | google | apple' },
+          { status: 400, headers: cors },
+        );
+      }
+
+      const mode = body.mode;
+      if (!isMode(mode)) {
+        return jsonResponse(
+          { error: 'BAD_REQUEST', message: 'mode must be charm | palm | match' },
+          { status: 400, headers: cors },
+        );
+      }
+      const imageBase64 = body.imageBase64;
+      if (typeof imageBase64 !== 'string' || imageBase64.length === 0) {
+        return jsonResponse(
+          { error: 'BAD_REQUEST', message: 'imageBase64 is required (non-empty string)' },
           { status: 400, headers: cors },
         );
       }
@@ -113,20 +134,33 @@ export default {
         );
       }
 
-      // チケット 10 で Gemini 呼び出しがここに入る
+      let result;
+      try {
+        result = await callGemini(env, mode, imageBase64);
+      } catch (e) {
+        if (e instanceof GeminiError) {
+          console.log(`gemini fail: mode=${mode} sub=${maskSub(auth.sub)} code=${e.code}`);
+          if (e.status === 'misconfig') {
+            return jsonResponse(
+              { error: 'SERVER_ERROR', message: e.message },
+              { status: 500, headers: cors },
+            );
+          }
+          return jsonResponse(
+            { error: 'GEMINI_FAILED', message: 'Failed to generate result. Please try again.' },
+            { status: 502, headers: cors },
+          );
+        }
+        throw e;
+      }
 
       const updated = await incrementUsage(env, auth.provider, auth.sub, usage);
       console.log(
-        `usage ok: provider=${auth.provider} sub=${maskSub(auth.sub)} count=${updated.count}/${MAX_PER_DAY}`,
+        `usage ok: provider=${auth.provider} sub=${maskSub(auth.sub)} mode=${mode} count=${updated.count}/${MAX_PER_DAY}`,
       );
 
       return jsonResponse(
-        {
-          status: 'ok',
-          message: 'skeleton',
-          endpoint: '/api/divine',
-          usage: { today: updated.count, max: MAX_PER_DAY },
-        },
+        { result, usage: { today: updated.count, max: MAX_PER_DAY } },
         { headers: cors },
       );
     }
