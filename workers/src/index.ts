@@ -1,3 +1,5 @@
+import { AuthError, maskSub, verifyToken, type Provider } from './auth';
+
 export interface Env {
   USAGE_KV: KVNamespace;
   ALLOWED_ORIGINS?: string;
@@ -37,6 +39,10 @@ function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
   });
 }
 
+function isProvider(v: unknown): v is Provider {
+  return v === 'stub' || v === 'google' || v === 'apple';
+}
+
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const origin = req.headers.get('Origin');
@@ -51,6 +57,46 @@ export default {
     }
 
     if (url.pathname === '/api/divine' && req.method === 'POST') {
+      let body: { provider?: unknown };
+      try {
+        body = (await req.json()) as { provider?: unknown };
+      } catch {
+        return jsonResponse(
+          { error: 'BAD_REQUEST', message: 'Invalid JSON body' },
+          { status: 400, headers: cors },
+        );
+      }
+
+      const provider = body.provider;
+      if (!isProvider(provider)) {
+        return jsonResponse(
+          { error: 'BAD_REQUEST', message: 'provider must be stub | google | apple' },
+          { status: 400, headers: cors },
+        );
+      }
+
+      const authHeader = req.headers.get('Authorization');
+      const idToken = authHeader?.startsWith('Bearer ')
+        ? authHeader.slice('Bearer '.length).trim()
+        : null;
+      const devSubHeader = req.headers.get('X-Dev-Sub');
+
+      let auth;
+      try {
+        auth = await verifyToken({ provider, idToken, devSubHeader, env });
+      } catch (e) {
+        if (e instanceof AuthError) {
+          console.log(`auth fail: provider=${provider} code=${e.code}`);
+          return jsonResponse(
+            { error: e.status === 500 ? 'SERVER_ERROR' : 'UNAUTHORIZED', message: e.message },
+            { status: e.status, headers: cors },
+          );
+        }
+        throw e;
+      }
+
+      console.log(`auth ok: provider=${auth.provider} sub=${maskSub(auth.sub)}`);
+
       return jsonResponse(
         {
           status: 'ok',

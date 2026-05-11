@@ -152,3 +152,16 @@ dev / 本番で同じ secret 名を使うが、**本番では `DEV_BYPASS_ENABLE
 - **`compatibility_date` は固定値**: 自動更新しない(挙動が変わるとデバッグが難しくなる)。SDK 更新時に明示的に上げる
 - **TypeScript 設定で `types: ["@cloudflare/workers-types"]` が必須**: `KVNamespace`・`ExportedHandler`・グローバル `Request`/`Response` が解決される。Node の `@types/node` を入れない(Workers ランタイムは Node ではない)
 - **`wrangler dev` は Cloudflare 認証不要でローカル起動可能**: `wrangler.toml` の `id` がプレースホルダのままでもローカル KV エミュレーションで動く。プロビジョニングは `wrangler deploy` 時のみ必須
+
+## チケット 08 完了時の知見
+
+- **`jose` v6 は Workers の Web Crypto を自動利用**: 追加設定不要で `globalThis.fetch` + `crypto.subtle` が使われる。Node の `--experimental-fetch` 等は不要
+- **JWKS は必ずモジュールスコープで singleton 化**: `createRemoteJWKSet(new URL(...))` をハンドラ内で呼ぶと毎リクエスト fetch が走り、レイテンシ悪化 + Google/Apple へのレートリミット発動。トップレベルで生成して Worker インスタンス内で再利用
+- **`jose` の例外は `joseErrors.JOSEError` を継承**: `e.code`(`ERR_JWT_EXPIRED` / `ERR_JWS_INVALID` / `ERR_JWT_CLAIM_VALIDATION_FAILED` 等)で粒度の高い分類が可能。401 にまとめて返す前にログに `code` を出すとデバッグが楽
+- **`AuthError.status` で 401 と 500 を分ける**: トークン不正は 401、サーバ設定不備(`GOOGLE_CLIENT_IDS` 未投入など)は 500。**クライアント `lib/api.ts` の 401 自動ログアウトを誤発火させない**ためにこの分離は重要
+- **stub バイパスは `env.DEV_BYPASS_ENABLED === 'true'` の 1 箇所判定だけ**: `if (env.ENVIRONMENT === 'dev')` のような分岐はコードに **絶対に書かない**(env 名がリネームされた瞬間に本番で stub が通る事故が起きる)
+- **`X-Dev-Sub` は stub 以外で読まない**: `provider !== 'stub'` の経路では `devSubHeader` 変数を一切使わない。Google トークン経由で偽の sub を注入できないようにする
+- **`.dev.vars` の編集は wrangler dev 再起動が必要**: HMR では再読み込みされない。Ctrl+C → `npm run dev` で読み直す
+- **ログには `maskSub(sub)`(先頭 4 文字 + `****`)**: 完全な sub をログに出さない(個人識別子の最小化、§7.3)。`console.log` は Cloudflare Logs に出るので生 sub は痕跡が残る
+- **`req.json()` は 1 度しか呼べない**: ストリームが consume されるので、`provider` 抽出と後段の `mode`/`imageBase64` 抽出は **同じ body 変数から**取り出す。09/10 はその前提で body を `let body: { provider, mode, imageBase64 }` 形式に拡張する
+- **`jose` の `audience` は配列で複数許可**: Google は iOS/Android/Web の 3 つの Client ID を全部許可する必要がある。`GOOGLE_CLIENT_IDS` をカンマ区切りで投入し、`.split(',')` で配列化して渡す
