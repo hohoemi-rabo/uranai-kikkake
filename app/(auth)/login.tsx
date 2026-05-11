@@ -1,19 +1,17 @@
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { signIn } from '@/lib/auth/signIn';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginScreen() {
-  const router = useRouter();
+  const { signIn } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
     setLoading(true);
     try {
       await signIn();
-      router.replace('/');
     } catch (error) {
       console.error(error);
     } finally {

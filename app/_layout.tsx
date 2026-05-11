@@ -13,23 +13,25 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { Colors } from '@/constants/theme';
+import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { getOnboardingCompleted } from '@/lib/onboarding';
 import '../global.css';
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: '(main)',
 };
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 SystemUI.setBackgroundColorAsync(Colors.background).catch(() => {});
 
-export default function RootLayout() {
+function RootContent() {
   const [loaded, error] = useFonts({
     MPLUSRounded1c_400Regular,
     MPLUSRounded1c_700Bold,
     MPLUSRounded1c_900Black,
   });
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
+  const { isLoading: authLoading } = useAuth();
 
   useEffect(() => {
     getOnboardingCompleted()
@@ -38,12 +40,12 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if ((loaded || error) && onboardingDone !== null) {
+    if ((loaded || error) && onboardingDone !== null && !authLoading) {
       SplashScreen.hideAsync().catch(() => {});
     }
-  }, [loaded, error, onboardingDone]);
+  }, [loaded, error, onboardingDone, authLoading]);
 
-  if ((!loaded && !error) || onboardingDone === null) return null;
+  if ((!loaded && !error) || onboardingDone === null || authLoading) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -53,11 +55,19 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: Colors.background },
         }}
       >
-        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(main)" />
         <Stack.Screen name="(auth)" />
       </Stack>
       {!onboardingDone && <Redirect href="/(auth)/onboarding" />}
       <StatusBar style="dark" />
     </GestureHandlerRootView>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootContent />
+    </AuthProvider>
   );
 }

@@ -68,6 +68,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         isAccessMediaLocationEnabled: false,
       },
     ],
+    'expo-secure-store',
   ],
   experiments: {
     typedRoutes: true,
