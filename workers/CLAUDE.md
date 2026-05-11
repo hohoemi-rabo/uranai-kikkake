@@ -140,3 +140,15 @@ wrangler secret put DEV_BYPASS_ENABLED                      # dev 環境のみ t
 ```
 
 dev / 本番で同じ secret 名を使うが、**本番では `DEV_BYPASS_ENABLED` を投入しない**。
+
+## チケット 07 完了時の知見
+
+- **`wrangler init` は対話式なので CI/Claude 経由では使わない**: `package.json`・`wrangler.toml`・`tsconfig.json` を手書きする方が早い。空ディレクトリに `npm install` してから個別ファイルを作る順
+- **KV namespace は手動 provisioning が必要**: `wrangler kv namespace create USAGE_KV` の出力 ID を `wrangler.toml` に貼り付ける。**dev / prod で別 ID を作って environment ごとにバインド**。本実装フェーズではプレースホルダ `__REPLACE_WITH_..._KV_ID__` のままコミットして、ユーザーが Cloudflare 認証完了後に書き換える運用
+- **dev / prod の worker 名を分ける**: 同じ名前で deploy すると上書きされる。`name = "uranai-kikkake-api-dev"`(default)+ `[env.production].name = "uranai-kikkake-api"` の二段構え
+- **CORS は Origin ヘッダの有無で分岐**: モバイル fetch・curl は Origin 無し → CORS ヘッダ不要で素通し / Origin あり許可済み → echo / Origin あり未許可 → プリフライト(`OPTIONS`)は 403、本体リクエストは CORS ヘッダ無しで返す(ブラウザ側がブロック)。`Access-Control-Allow-Origin: *` は **絶対に使わない**
+- **`Vary: Origin` を必ず付ける**: 異なる origin への応答が CDN や中間キャッシュで取り違えられないように。CORS ヘッダを返す全てのレスポンスに同梱
+- **`DEV_BYPASS_ENABLED` は `wrangler.toml` でなく secret**: 平文で repo に入れない。dev のみ `wrangler secret put DEV_BYPASS_ENABLED`(値: `true`)、本番では put しない
+- **`compatibility_date` は固定値**: 自動更新しない(挙動が変わるとデバッグが難しくなる)。SDK 更新時に明示的に上げる
+- **TypeScript 設定で `types: ["@cloudflare/workers-types"]` が必須**: `KVNamespace`・`ExportedHandler`・グローバル `Request`/`Response` が解決される。Node の `@types/node` を入れない(Workers ランタイムは Node ではない)
+- **`wrangler dev` は Cloudflare 認証不要でローカル起動可能**: `wrangler.toml` の `id` がプレースホルダのままでもローカル KV エミュレーションで動く。プロビジョニングは `wrangler deploy` 時のみ必須

@@ -1,0 +1,28 @@
+name = "uranai-kikkake-api-dev"
+main = "src/index.ts"
+compatibility_date = "2026-05-11"
+
+# dev 環境(無印 = `wrangler deploy` のターゲット)
+[vars]
+ALLOWED_ORIGINS = "http://localhost:8081"
+
+[[kv_namespaces]]
+binding = "USAGE_KV"
+# 取得手順:
+#   npx wrangler kv namespace create USAGE_KV
+# 出力された id を下記に貼り付ける
+id = "e83890f3714848a5b3cd256cf0ff7426"
+preview_id = "76cb5bd93c564be39b6277136d69f10d"
+
+# 本番環境(`wrangler deploy --env production` のターゲット)
+[env.production]
+name = "uranai-kikkake-api"
+
+[env.production.vars]
+ALLOWED_ORIGINS = ""
+
+[[env.production.kv_namespaces]]
+binding = "USAGE_KV"
+# 取得手順:
+#   npx wrangler kv namespace create USAGE_KV --env production
+id = "b37f2c274ee84e68a84031fccebe84bf"
