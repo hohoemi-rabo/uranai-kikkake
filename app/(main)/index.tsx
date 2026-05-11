@@ -1,6 +1,7 @@
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HintText } from '@/components/HintText';
@@ -21,6 +22,7 @@ export default function HomeScreen() {
   const { signOut } = useAuth();
   const { remaining } = useUsage();
   const [tab, setTab] = useState<TabKey>('charm');
+  const [picking, setPicking] = useState(false);
 
   const isEmpty = remaining <= 0;
   const cameraBg = isEmpty ? 'bg-slate-300' : TAB_BG[tab];
@@ -29,8 +31,51 @@ export default function HomeScreen() {
   const handleCamera = () => {
     router.push({ pathname: '/(main)/camera', params: { mode: tab } });
   };
-  const handlePicker = () => {
-    Alert.alert('写真選択', 'チケット 13 で実装予定です');
+  const handlePicker = async () => {
+    if (picking) return;
+    setPicking(true);
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        if (perm.canAskAgain === false) {
+          Alert.alert(
+            '写真へのアクセスが許可されていません',
+            '端末の設定アプリから「占いキッカケ」の写真への許可を ON にしてください。',
+            [
+              { text: 'キャンセル', style: 'cancel' },
+              { text: '設定を開く', onPress: () => Linking.openSettings() },
+            ],
+          );
+        } else {
+          Alert.alert(
+            '写真の使用を許可してください',
+            'お持ちの写真から診断するために必要です。',
+          );
+        }
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: false,
+        quality: 1,
+        selectionLimit: 1,
+      });
+      if (result.canceled || !result.assets[0]) return;
+
+      const uri = result.assets[0].uri;
+      // チケット 15 でプレビュー画面遷移に差し替え:
+      //   router.push({ pathname: '/(main)/preview', params: { mode: tab, uri } });
+      Alert.alert(
+        '画像選択完了',
+        `URI: ${uri}\n\nプレビュー画面はチケット 15 で実装予定です`,
+      );
+    } catch (e) {
+      console.error('image picker error:', e);
+      Alert.alert('エラー', '画像の選択に失敗しました。もう一度お試しください。');
+    } finally {
+      setPicking(false);
+    }
   };
   const handleSettings = () => {
     Alert.alert('設定', 'チケット 20 で実装予定です');
@@ -75,7 +120,7 @@ export default function HomeScreen() {
           </Pressable>
 
           <Pressable
-            disabled={isEmpty}
+            disabled={isEmpty || picking}
             onPress={handlePicker}
             className={`mt-3 p-5 rounded-2xl active:opacity-80 ${
               isEmpty ? 'bg-slate-300' : 'bg-white border-2'
