@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,6 +17,7 @@ const TAB_BG: Record<TabKey, string> = {
 };
 
 export default function HomeScreen() {
+  const router = useRouter();
   const { signOut } = useAuth();
   const { remaining } = useUsage();
   const [tab, setTab] = useState<TabKey>('charm');
@@ -25,7 +27,7 @@ export default function HomeScreen() {
   const cameraTextColor = isEmpty ? 'text-slate-500' : 'text-white';
 
   const handleCamera = () => {
-    Alert.alert('カメラ', 'チケット 12 で実装予定です');
+    router.push({ pathname: '/(main)/camera', params: { mode: tab } });
   };
   const handlePicker = () => {
     Alert.alert('写真選択', 'チケット 13 で実装予定です');
