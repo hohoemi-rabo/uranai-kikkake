@@ -43,7 +43,7 @@ export default function PreviewScreen() {
       if (outcome.ok) {
         router.replace({
           pathname: '/(main)/result',
-          params: { result: JSON.stringify(outcome.result), mode },
+          params: { result: JSON.stringify(outcome.result), mode, uri },
         });
         return;
       }

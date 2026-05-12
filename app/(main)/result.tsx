@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,9 +9,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ResultCard } from '@/components/ResultCard';
 import { TypewriterText } from '@/components/TypewriterText';
 import { Colors, isTabKey, type TabKey } from '@/constants/theme';
 import type { DivineResultBody } from '@/hooks/useDivine';
+import { useSaveImage } from '@/hooks/useSaveImage';
 import { useSpeech } from '@/hooks/useSpeech';
 
 const MODE_LABEL: Record<TabKey, string> = {
@@ -74,11 +76,14 @@ function StaggerSection({ delayMs, children }: SectionProps) {
 
 export default function ResultScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ result?: string; mode?: string }>();
+  const params = useLocalSearchParams<{ result?: string; mode?: string; uri?: string }>();
   const mode: TabKey = isTabKey(params.mode) ? params.mode : 'charm';
   const result = parseResult(params.result);
+  const photoUri = typeof params.uri === 'string' ? params.uri : '';
   const accent = Colors[mode];
   const { speak, stop, isSpeaking } = useSpeech();
+  const { saveImage, isSaving } = useSaveImage();
+  const cardRef = useRef<View>(null);
 
   useEffect(() => {
     if (!result) {
@@ -252,16 +257,20 @@ export default function ResultScreen() {
           </Pressable>
 
           <Pressable
-            // チケット 18 で useSaveImage に差し替え
-            onPress={() => Alert.alert('画像保存', 'チケット 18 で実装します')}
+            onPress={() => saveImage(cardRef)}
+            disabled={isSaving || !photoUri}
             className="p-5 rounded-2xl bg-white active:opacity-80"
-            style={{ borderWidth: 2, borderColor: accent }}
+            style={{
+              borderWidth: 2,
+              borderColor: accent,
+              opacity: isSaving || !photoUri ? 0.6 : 1,
+            }}
           >
             <Text
               className="text-center text-lg font-rounded-bold"
               style={{ color: accent }}
             >
-              💾 画像を保存
+              {isSaving ? '保存中…' : '💾 画像を保存'}
             </Text>
           </Pressable>
 
@@ -280,6 +289,20 @@ export default function ResultScreen() {
           ※ 占いはエンターテイメントです。会話のきっかけとしてお楽しみください。
         </Text>
       </ScrollView>
+
+      {photoUri ? (
+        <View
+          pointerEvents="none"
+          style={{ position: 'absolute', top: -10000, left: 0, opacity: 0 }}
+        >
+          <ResultCard
+            ref={cardRef}
+            mode={mode}
+            result={result}
+            photoUri={photoUri}
+          />
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }
