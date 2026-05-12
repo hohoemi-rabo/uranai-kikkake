@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Alert, Linking, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { HintModal } from '@/components/HintModal';
 import { HintText } from '@/components/HintText';
 import { TabSwitcher } from '@/components/TabSwitcher';
 import { UsageBadge } from '@/components/UsageBadge';
@@ -21,6 +22,7 @@ export default function HomeScreen() {
   const { remaining } = useUsage();
   const [tab, setTab] = useState<TabKey>('charm');
   const [picking, setPicking] = useState(false);
+  const [hintVisible, setHintVisible] = useState(false);
 
   const isEmpty = remaining <= 0;
   const cameraBg = isEmpty ? 'bg-slate-300' : TAB_BG[tab];
@@ -73,9 +75,12 @@ export default function HomeScreen() {
   const handleSettings = () => {
     router.push('/(main)/settings');
   };
+  const handleHint = () => {
+    setHintVisible(true);
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-sky-50" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
       <View className="flex-row items-center justify-between px-4 pt-2 pb-2">
         <Pressable onPress={handleSettings} className="p-2 active:opacity-60">
           <Text className="text-2xl">⚙️</Text>
@@ -98,9 +103,21 @@ export default function HomeScreen() {
         </View>
 
         <View>
-          <View className="mb-4">
+          <View className="mb-2">
             <HintText tab={tab} />
           </View>
+
+          <Pressable
+            onPress={handleHint}
+            className="self-center mb-3 py-2 px-4 active:opacity-60"
+          >
+            <Text
+              className="text-base font-rounded underline"
+              style={{ color: TabAccent[tab] }}
+            >
+              💡 こんな写真もおすすめ
+            </Text>
+          </Pressable>
 
           <Pressable
             disabled={isEmpty}
@@ -132,6 +149,11 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      <HintModal
+        visible={hintVisible}
+        mode={tab}
+        onClose={() => setHintVisible(false)}
+      />
     </SafeAreaView>
   );
 }

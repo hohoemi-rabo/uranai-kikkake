@@ -25,7 +25,7 @@ export default function PreviewScreen() {
 
   if (!uri) {
     return (
-      <SafeAreaView className="flex-1 bg-sky-50 items-center justify-center">
+      <SafeAreaView className="flex-1 bg-violet-50 items-center justify-center">
         <Text className="text-base font-rounded text-slate-700">画像が見つかりません</Text>
         <Pressable onPress={() => router.back()} className="mt-4 p-3">
           <Text className="text-base font-rounded-bold text-slate-700 underline">戻る</Text>
@@ -76,7 +76,7 @@ export default function PreviewScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-sky-50" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
       <View className="flex-1 px-6 pt-2 pb-6">
         <Pressable
           onPress={() => router.back()}
@@ -107,7 +107,7 @@ export default function PreviewScreen() {
         </Pressable>
       </View>
 
-      {analyzing && <AnalyzingOverlay />}
+      {analyzing && <AnalyzingOverlay mode={mode} />}
     </SafeAreaView>
   );
 }

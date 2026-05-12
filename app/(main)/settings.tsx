@@ -71,7 +71,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-sky-50" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
       <View className="flex-row items-center justify-between px-4 pt-2 pb-3">
         <Pressable onPress={() => router.back()} className="p-2 active:opacity-60">
           <Text className="text-base font-rounded-bold text-slate-700">← 戻る</Text>

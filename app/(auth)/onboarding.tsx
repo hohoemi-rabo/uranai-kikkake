@@ -77,7 +77,7 @@ export default function OnboardingScreen() {
   const isLast = index === SLIDES.length - 1;
 
   return (
-    <SafeAreaView className="flex-1 bg-sky-50" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
       <GestureDetector gesture={swipe}>
         <View className="flex-1">
           <Animated.View

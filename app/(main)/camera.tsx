@@ -28,7 +28,7 @@ export default function CameraScreen() {
 
   if (!permission.granted) {
     return (
-      <SafeAreaView className="flex-1 bg-sky-50" edges={['top', 'bottom']}>
+      <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
         <View className="flex-1 px-6 items-center justify-center">
           <Text className="text-6xl">📷</Text>
           <Text className="mt-6 text-2xl font-rounded-bold text-slate-900 text-center">

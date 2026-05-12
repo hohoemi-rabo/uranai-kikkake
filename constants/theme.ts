@@ -2,7 +2,7 @@ export const Colors = {
   charm: '#FB7185',
   palm: '#2DD4BF',
   match: '#FB923C',
-  background: '#F0F9FF',
+  background: '#F5F3FF',
   card: '#FFFFFF',
   cardAlt: '#F8FAFC',
   luckyItem: '#FFFBEB',

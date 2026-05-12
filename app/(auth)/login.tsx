@@ -20,7 +20,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-sky-50">
+    <SafeAreaView className="flex-1 bg-violet-50">
       <View className="flex-1 items-center justify-center px-6">
         <Text className="text-7xl">🔮</Text>
         <Text className="mt-6 text-3xl font-rounded-black text-slate-900">

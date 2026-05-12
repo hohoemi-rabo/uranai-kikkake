@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -29,8 +30,10 @@ const LUCKY_HEADING: Record<TabKey, string> = {
 };
 
 const TYPING_INTERVAL_MS = 35;
-const FADE_DURATION = 400;
+const FADE_DURATION = 600;
 const TYPING_CAP_MS = 9000;
+// Web 版 spec の cubic-bezier(0.23, 1, 0.32, 1) と同等
+const FADE_EASING = Easing.bezier(0.23, 1, 0.32, 1);
 
 function parseResult(raw: string | string[] | undefined): DivineResultBody | null {
   if (typeof raw !== 'string') return null;
@@ -59,11 +62,17 @@ type SectionProps = {
 
 function StaggerSection({ delayMs, children }: SectionProps) {
   const opacity = useSharedValue(0);
-  const translateY = useSharedValue(20);
+  const translateY = useSharedValue(24);
 
   useEffect(() => {
-    opacity.value = withDelay(delayMs, withTiming(1, { duration: FADE_DURATION }));
-    translateY.value = withDelay(delayMs, withTiming(0, { duration: FADE_DURATION }));
+    opacity.value = withDelay(
+      delayMs,
+      withTiming(1, { duration: FADE_DURATION, easing: FADE_EASING }),
+    );
+    translateY.value = withDelay(
+      delayMs,
+      withTiming(0, { duration: FADE_DURATION, easing: FADE_EASING }),
+    );
   }, [delayMs, opacity, translateY]);
 
   const animStyle = useAnimatedStyle(() => ({
@@ -94,17 +103,19 @@ export default function ResultScreen() {
   if (!result) return null;
 
   const typingMs = Math.min(result.personality.length * TYPING_INTERVAL_MS, TYPING_CAP_MS);
+  // タイプライター完了後、下 3 カード(開運アイテム / アドバイス / おすすめの話題)を同時に出す
+  const bottomDelay = 800 + typingMs + 300;
   const STAGGER = {
     title: 0,
     animal: 400,
     message: 800,
-    lucky: 800 + typingMs + 200,
-    advice: 800 + typingMs + 400,
-    icebreaker: 800 + typingMs + 600,
+    lucky: bottomDelay,
+    advice: bottomDelay,
+    icebreaker: bottomDelay,
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-sky-50" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
       <View className="flex-row items-center justify-between px-6 pt-2 pb-3">
         <Pressable onPress={() => router.replace('/(main)')} className="p-2 active:opacity-60">
           <Text className="text-base font-rounded-bold text-slate-700">← 最初に戻る</Text>
