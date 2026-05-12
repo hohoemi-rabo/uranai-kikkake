@@ -7,9 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
 import { clearOnboardingCompleted } from '@/lib/onboarding';
 
-// TODO: チケット 21 で正式 URL に差し替え
-const PRIVACY_URL = 'https://hohoemi-rabo.com/uranai-kikkake/privacy';
-const TERMS_URL = 'https://hohoemi-rabo.com/uranai-kikkake/terms';
+const PRIVACY_URL = 'https://hohoemi-rabo.github.io/uranai-kikkake/legal/privacy.html';
+const TERMS_URL = 'https://hohoemi-rabo.github.io/uranai-kikkake/legal/terms.html';
 const CONTACT_MAILTO =
   'mailto:rabo.hohoemi@gmail.com?subject=' +
   encodeURIComponent('占いキッカケのお問い合わせ');

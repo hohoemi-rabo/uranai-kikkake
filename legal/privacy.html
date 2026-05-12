@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>プライバシーポリシー | 占いキッカケ</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<main>
+  <h1>プライバシーポリシー</h1>
+  <p>本プライバシーポリシーは、モバイルアプリ「占いキッカケ」(以下「本アプリ」)の利用に関し、開発・運営者である ほほ笑みラボ(以下「当方」)が取得・利用する情報の取り扱いについて定めるものです。</p>
+
+  <h2>1. 取得する情報</h2>
+  <ul>
+    <li><strong>認証 ID</strong>: Google / Apple ID から取得される識別子(<code>sub</code>)</li>
+    <li><strong>利用回数</strong>: 1 日 3 回の利用制限を管理するためのカウント</li>
+    <li><strong>撮影画像</strong>: 診断のためにアップロードされた画像(処理直後に破棄)</li>
+  </ul>
+
+  <h2>2. 利用目的</h2>
+  <ul>
+    <li>AI による顔相・手相・相性診断の実行</li>
+    <li>1 日 3 回の利用制限の管理</li>
+    <li>不正利用の防止</li>
+  </ul>
+
+  <h2>3. 第三者提供</h2>
+  <p>撮影画像は診断のため、Google の Gemini API に送信されます。Gemini における画像の取り扱いについては、<a href="https://policies.google.com/privacy">Google のプライバシーポリシー</a>をご参照ください。</p>
+  <p>認証 ID は Google / Apple のログイン認証時にのみ利用され、それ以外の第三者には提供しません。</p>
+
+  <h2>4. 保存期間</h2>
+  <ul>
+    <li>認証 ID と利用回数: Cloudflare KV に <strong>最大 48 時間</strong> のみ保存され、日跨ぎ後に自動削除されます。</li>
+    <li>撮影画像: <strong>当方のサーバには一切保存しません</strong>。Gemini API への送信完了後、ただちに破棄します。</li>
+  </ul>
+
+  <h2>5. ユーザーの権利</h2>
+  <p>アカウントの削除依頼や、個人情報に関するお問い合わせは下記までご連絡ください。</p>
+  <p>連絡先: <a href="mailto:rabo.hohoemi@gmail.com">rabo.hohoemi@gmail.com</a></p>
+
+  <h2>6. 安全管理</h2>
+  <p>取得した情報は暗号化された通信(HTTPS)で送受信され、Cloudflare Workers および Cloudflare KV のセキュリティ機構によって保護されます。</p>
+
+  <h2>7. ポリシーの変更</h2>
+  <p>本ポリシーは予告なく変更されることがあります。重要な変更があった場合はアプリ内で告知します。</p>
+
+  <p class="meta">最終更新日: 2026 年 5 月 12 日<br>発行者: ほほ笑みラボ</p>
+</main>
+</body>
+</html>

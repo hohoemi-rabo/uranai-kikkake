@@ -73,6 +73,15 @@ npm run lint           # expo lint
 
 **`EXPO_PUBLIC_*` はバイナリにインライン展開される**ため、機密情報を入れない。Gemini キーなどは Workers 側 secret のみ。
 
+## ポリシーページのホスティング
+
+プライバシーポリシー / 利用規約は `legal/` 配下の静的 HTML を **GitHub Pages**(`main` ブランチ / `/` root 配信)で公開する。
+
+- 公開 URL: `https://hohoemi-rabo.github.io/uranai-kikkake/legal/{privacy,terms}.html`
+- アプリ側参照: `app/(main)/settings.tsx` の `PRIVACY_URL` / `TERMS_URL` 定数 2 箇所のみ
+- root の空 `.nojekyll` で Jekyll を無効化(`_layout.tsx` 等 underscore 始まりファイルの誤無視を予防)
+- 詳細・改定手順は [`docs/21-policy-pages.md`](./docs/21-policy-pages.md)
+
 ## Git 運用
 
 - `main` への直接コミットは避ける(global CLAUDE.md 指針)
