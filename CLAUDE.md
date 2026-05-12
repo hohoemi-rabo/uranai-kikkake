@@ -88,6 +88,14 @@ npm run lint           # expo lint
 - env 切替は `eas.json` の `profile.env` で行う(`.env` よりこちらが優先)
 - 詳細・キーストア・トラブルシュートは [`docs/23-eas-build.md`](./docs/23-eas-build.md)
 
+## ストア提出ドラフト
+
+Google Play 提出に必要な情報(説明文・データセーフティ・コンテンツレーティング・レビュアー向けメモ・スクリーンショット手順・提出チェックリスト)を [`docs/store/`](./docs/store/) 配下に **コピペ可能なドラフト** として保管。
+
+- 提出当日は [`docs/store/submission-checklist.md`](./docs/store/submission-checklist.md) を頭から実行
+- データセーフティとプライバシーポリシーの内容を **完全一致** させる(`legal/privacy.html` と `docs/store/data-safety-answers.md`)
+- 実 EAS submit はチケット 25(Google ログイン)完了後
+
 ## ポリシーページのホスティング
 
 プライバシーポリシー / 利用規約は `legal/` 配下の静的 HTML を **GitHub Pages**(`main` ブランチ / `/` root 配信)で公開する。
