@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { TypewriterText } from '@/components/TypewriterText';
 import { Colors, isTabKey, type TabKey } from '@/constants/theme';
 import type { DivineResultBody } from '@/hooks/useDivine';
+import { useSpeech } from '@/hooks/useSpeech';
 
 const MODE_LABEL: Record<TabKey, string> = {
   charm: '🌟 魅力発見',
@@ -77,6 +78,7 @@ export default function ResultScreen() {
   const mode: TabKey = isTabKey(params.mode) ? params.mode : 'charm';
   const result = parseResult(params.result);
   const accent = Colors[mode];
+  const { speak, stop, isSpeaking } = useSpeech();
 
   useEffect(() => {
     if (!result) {
@@ -233,8 +235,11 @@ export default function ResultScreen() {
 
         <View className="mt-2 gap-3">
           <Pressable
-            // チケット 17 で useSpeech に差し替え
-            onPress={() => Alert.alert('音声読み上げ', 'チケット 17 で実装します')}
+            onPress={() =>
+              isSpeaking
+                ? stop()
+                : speak([result.animal, result.personality, result.icebreaker])
+            }
             className="p-5 rounded-2xl bg-white active:opacity-80"
             style={{ borderWidth: 2, borderColor: accent }}
           >
@@ -242,7 +247,7 @@ export default function ResultScreen() {
               className="text-center text-lg font-rounded-bold"
               style={{ color: accent }}
             >
-              🔊 読み上げる
+              {isSpeaking ? '⏸ 停止' : '🔊 読み上げる'}
             </Text>
           </Pressable>
 
