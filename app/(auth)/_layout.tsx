@@ -1,11 +1,14 @@
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Stack, usePathname } from 'expo-router';
 
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AuthLayout() {
   const { isAuthenticated, isLoading } = useAuth();
+  const pathname = usePathname();
+  const isOnboarding = pathname === '/onboarding';
+
   if (isLoading) return null;
-  if (isAuthenticated) return <Redirect href="/(main)" />;
+  if (isAuthenticated && !isOnboarding) return <Redirect href="/(main)" />;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

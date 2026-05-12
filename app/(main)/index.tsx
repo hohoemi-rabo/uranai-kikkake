@@ -8,7 +8,6 @@ import { HintText } from '@/components/HintText';
 import { TabSwitcher } from '@/components/TabSwitcher';
 import { UsageBadge } from '@/components/UsageBadge';
 import { TabAccent, type TabKey } from '@/constants/theme';
-import { useAuth } from '@/hooks/useAuth';
 import { useUsage } from '@/hooks/useUsage';
 
 const TAB_BG: Record<TabKey, string> = {
@@ -19,7 +18,6 @@ const TAB_BG: Record<TabKey, string> = {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { signOut } = useAuth();
   const { remaining } = useUsage();
   const [tab, setTab] = useState<TabKey>('charm');
   const [picking, setPicking] = useState(false);
@@ -73,7 +71,7 @@ export default function HomeScreen() {
     }
   };
   const handleSettings = () => {
-    Alert.alert('設定', 'チケット 20 で実装予定です');
+    router.push('/(main)/settings');
   };
 
   return (
@@ -134,14 +132,6 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* チケット 20(設定画面)で正式な場所に移管予定 */}
-      <View className="px-6 pb-4">
-        <Pressable onPress={() => signOut()} className="py-2 active:opacity-60">
-          <Text className="text-center text-xs font-rounded text-slate-400 underline">
-            (開発用)ログアウト
-          </Text>
-        </Pressable>
-      </View>
     </SafeAreaView>
   );
 }
