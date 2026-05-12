@@ -19,17 +19,21 @@
 
 ## TODO
 
-- [ ] Google Cloud Console で OAuth クライアント ID(iOS / Android / Web)を発行
-- [ ] `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` / `_ANDROID_CLIENT_ID` / `_WEB_CLIENT_ID` を `.env` / EAS Build profile に設定
-- [ ] `expo-auth-session` + `expo-crypto` + `expo-web-browser` を導入
-- [ ] `src/lib/auth/google.ts` で `useAuthRequest` フックをラップした `useGoogleSignIn` を作成
-- [ ] iOS の URL Scheme `com.googleusercontent.apps.{ID}` を `app.config.ts` の `ios.urlScheme` に登録
-- [ ] Android: EAS Build のキーストア SHA-1 を Google Cloud に登録
-- [ ] `useAuth` を `EXPO_PUBLIC_AUTH_MODE` で stub / google を分岐させる(04 で用意済み)
-- [ ] `app/(auth)/login.tsx` のボタン文言を「Google でログイン」に戻す
-- [ ] Workers 側で `provider === 'google'` を有効化(08 で雛形済み)、`DEV_BYPASS_ENABLED` を本番で外す
-- [ ] **dev client / EAS Build で実機テスト**(Expo Go では動かなくなる)
-- [ ] スタブ関連コード(`provider: 'stub'`、`DEV_BYPASS_ENABLED`)を本番ビルドから除去できているか grep で確認
+`[×]` = Claude 実装完了 / `[ ] (手動)` = ユーザー手動操作 / `[ ] (EAS Build 後)` = 実機テスト後完了
+
+- [ ] (手動) Google Cloud Console で OAuth クライアント ID(Web / Android × 2)を発行 → [`25-google-cloud-setup.md`](./25-google-cloud-setup.md) 参照(iOS はフェーズ 2)
+- [ ] (手動) `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` / `_WEB_CLIENT_ID` を `eas.json` の preview / production env に投入
+- [×] `expo-auth-session` を導入(`expo-crypto` / `expo-web-browser` は既存)
+- [×] `lib/auth/google.ts` で `useAuthRequest` フックをラップした `useGoogleSignIn` を作成(callback API)
+- iOS の URL Scheme: **フェーズ 2 で対応**(`app.config.ts` の `scheme: 'uranaikikkake'` だけで Android は動く)
+- [ ] (手動) Android: EAS Build のキーストア SHA-1 を Google Cloud に登録(初回 `eas build --profile development --platform android` 後に `eas credentials -p android` で取得)
+- [×] `useAuth` に `signInWithSession(session)` 追加、`app/(auth)/login.tsx` で `EXPO_PUBLIC_AUTH_MODE` で stub / google を分岐
+- [×] `app/(auth)/login.tsx` に「🔵 Google でログイン」ボタン(google モード時)
+- [×] Workers 側 `provider === 'google'`(チケット 08 で完成済み、本チケットで再確認)
+- [ ] (手動) `wrangler secret put GOOGLE_CLIENT_IDS --env production` で Workers 本番に Web Client ID 投入
+- [ ] (手動) `wrangler.toml` の `[env.production]` に `DEV_BYPASS_ENABLED` を **書かない**(現状そのまま、stub バイパスは本番で無効)
+- [ ] (EAS Build 後) **dev client / EAS Build で実機テスト**(Expo Go では動かなくなる)
+- [×] スタブ関連コードは `EXPO_PUBLIC_AUTH_MODE=stub` のときのみ実行される構造(本番 google ビルド時は stub 経路通らない、grep 確認済み)
 
 ## 受入基準
 
@@ -41,5 +45,11 @@
 ## 技術メモ
 
 - `id_token` の `aud` は **Web Client ID** が入る(iOS/Android Client ID ではない)
-- 本チケット完了後は **Expo Go では認証画面以降に進めなくなる**。チームに告知すること
-- フェーズ 1.1 以降の機能開発は `EXPO_PUBLIC_AUTH_MODE=stub` に戻すか、EAS Dev Client を常用する
+- 本チケット完了後は **Expo Go では認証画面以降に進めなくなる**(google モード時)。stub モードに戻せば Expo Go で動く
+- フェーズ 1.1 以降の機能開発は `EXPO_PUBLIC_AUTH_MODE=stub`(`.env`)に戻すか、EAS Dev Client を常用する
+- **`useGoogleSignIn` は React Hook なので関数 API には包めない**: `signIn.ts` の関数チェーンとは別ルートで login 画面が直接呼ぶ + `useAuth().signInWithSession(session)` で完了する分離構造
+- **Hooks rule 準拠の分離コンポーネント**: `GoogleLoginButton` と `StubLoginButton` を別コンポーネントにして、AUTH_MODE で切り替え
+- **id_token の sub 取得は自前 base64url decode**(`lib/auth/google.ts:decodeJwtPayload`)。`jose` は Workers 側だけで使う(クライアントには不要)
+- **Android 用パッケージ名は dev/prod の 2 種類**: `jp.hohoemi-rabo.uranaikikkake` / `jp.hohoemi-rabo.uranaikikkake.dev`(`app.config.ts:18,21`)。Google Cloud Console で **2 つの Android Client ID** を作って SHA-1 をそれぞれ登録するのが分かりやすい
+- **`WebBrowser.maybeCompleteAuthSession()` をモジュールトップで呼ぶ**: redirect 後のアプリ復帰時にブラウザを閉じる必須処理。`lib/auth/google.ts:7` で呼んでいる
+- **Client ID は機密ではない**(audience 識別子)。`EXPO_PUBLIC_*` で JS バンドルに展開しても OK。Client Secret は Public Client(モバイル)では使わない

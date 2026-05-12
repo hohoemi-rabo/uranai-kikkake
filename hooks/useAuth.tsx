@@ -10,6 +10,7 @@ type AuthState = {
   isAuthenticated: boolean;
   isLoading: boolean;
   signIn: (provider?: Provider) => Promise<void>;
+  signInWithSession: (session: AuthSession) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -32,6 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(next);
   };
 
+  const signInWithSession = async (next: AuthSession) => {
+    await saveSession(next);
+    setSession(next);
+  };
+
   const signOut = async () => {
     await clearSession();
     setSession(null);
@@ -46,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: session !== null,
     isLoading,
     signIn,
+    signInWithSession,
     signOut,
   };
 

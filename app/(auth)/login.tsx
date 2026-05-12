@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useGoogleSignIn } from '@/lib/auth/google';
 
-export default function LoginScreen() {
+const AUTH_MODE = process.env.EXPO_PUBLIC_AUTH_MODE ?? 'stub';
+
+function StubLoginButton() {
   const { signIn } = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -20,6 +23,54 @@ export default function LoginScreen() {
   };
 
   return (
+    <Pressable
+      onPress={handleSignIn}
+      disabled={loading}
+      className="bg-charm p-5 rounded-2xl active:opacity-80 disabled:opacity-50"
+    >
+      <Text className="text-center text-lg font-rounded-bold text-white">
+        {loading ? 'ログイン中...' : '(開発用) ログイン'}
+      </Text>
+    </Pressable>
+  );
+}
+
+function GoogleLoginButton() {
+  const { signInWithSession } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const { start } = useGoogleSignIn({
+    onSuccess: async (session) => {
+      await signInWithSession(session);
+      setLoading(false);
+    },
+    onCancel: () => setLoading(false),
+    onError: (msg) => {
+      setLoading(false);
+      Alert.alert('ログインに失敗しました', msg);
+    },
+  });
+
+  const handlePress = () => {
+    setLoading(true);
+    void start();
+  };
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      disabled={loading}
+      className="bg-white p-5 rounded-2xl active:opacity-80 disabled:opacity-50"
+      style={{ borderWidth: 2, borderColor: '#4285F4' }}
+    >
+      <Text className="text-center text-lg font-rounded-bold text-slate-800">
+        {loading ? 'ログイン中…' : '🔵  Google でログイン'}
+      </Text>
+    </Pressable>
+  );
+}
+
+export default function LoginScreen() {
+  return (
     <SafeAreaView className="flex-1 bg-violet-50">
       <View className="flex-1 items-center justify-center px-6">
         <Text className="text-7xl">🔮</Text>
@@ -30,15 +81,7 @@ export default function LoginScreen() {
           ログインしてはじめましょう
         </Text>
         <View className="mt-12 w-full">
-          <Pressable
-            onPress={handleSignIn}
-            disabled={loading}
-            className="bg-charm p-5 rounded-2xl active:opacity-80 disabled:opacity-50"
-          >
-            <Text className="text-center text-lg font-rounded-bold text-white">
-              {loading ? 'ログイン中...' : '(開発用)ログイン'}
-            </Text>
-          </Pressable>
+          {AUTH_MODE === 'google' ? <GoogleLoginButton /> : <StubLoginButton />}
         </View>
       </View>
     </SafeAreaView>

@@ -204,3 +204,12 @@ dev / 本番で同じ secret 名を使うが、**本番では `DEV_BYPASS_ENABLE
 - **絵文字の位置・選定もプロンプトで導く**: `animal: "🦊 好奇心旺盛なキツネ"` のような「絵文字 + 動物名 + 補足」形式を期待しているため、ANIMAL_GUARD に「動物本体の絵文字を必ず付ける」と書く。`animal` フィールドが文字だけになる事故を防ぐ
 - **REQUIREMENTS の出所(§6.2.x)はコメントで残す**: 各プロンプト定数の上に `// REQUIREMENTS §6.2.x` を 1 行コメント。将来 REQUIREMENTS が更新された時、どのプロンプトがどの仕様に紐づくか追跡できる
 - **プロンプトは静的検証では拾えない**: tsc で構文/import は守れるが、文面の品質(トーン・否定回避・JSON 遵守)は **実画像 × 実 Gemini** でしか分からない。受入は wrangler dev + 実機で 5 サンプル × 3 モードを目視確認
+
+## チケット 25 完了時の知見
+
+- **`GOOGLE_CLIENT_IDS` には Web Client ID を入れる**(id_token の `aud` は Web Client ID になる、Android/iOS Client ID ではない)。投入: `wrangler secret put GOOGLE_CLIENT_IDS --env production`、値は `XXX.apps.googleusercontent.com` 形式
+- **複数 Client ID をカンマ区切りで指定可能**: 入力で `id1,id2,id3` 形式、`audience: env.GOOGLE_CLIENT_IDS.split(',')` で配列扱い。iOS / Android で個別 Client ID を取った場合に追記
+- **本番では `DEV_BYPASS_ENABLED` を未設定**: stub を完全に拒否するため、`wrangler.toml` の `[env.production]` には書かない(現状の設定通り、追加不要)
+- **dev Workers では `DEV_BYPASS_ENABLED=true`**: Expo Go + stub フロー専用に維持。本番 Workers と完全分離(`wrangler.toml` の env.production を別エントリで管理)
+- **`verifyGoogle` の audience 検証**: Workers は `jose.jwtVerify` で `aud` を自動検証。Client ID 一覧と一致しない id_token は弾く。クライアントが間違った Client ID を使うと 401 に
+- **クライアント側の id_token decode は audience 検証なし**: クライアントは sub を取り出すだけで、audience の正当性は Workers が責任を持つ(信頼境界の置き場所)

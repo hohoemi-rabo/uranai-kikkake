@@ -24,7 +24,9 @@
       "env": {
         "APP_ENV": "preview",
         "EXPO_PUBLIC_AUTH_MODE": "google",
-        "EXPO_PUBLIC_API_BASE_URL": "https://uranai-kikkake-api-dev.rabo-hohoemi.workers.dev"
+        "EXPO_PUBLIC_API_BASE_URL": "https://uranai-kikkake-api-dev.rabo-hohoemi.workers.dev",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": ""
       }
     },
     "production": {
@@ -35,7 +37,9 @@
       "env": {
         "APP_ENV": "production",
         "EXPO_PUBLIC_AUTH_MODE": "google",
-        "EXPO_PUBLIC_API_BASE_URL": "https://uranai-kikkake-api-dev.rabo-hohoemi.workers.dev"
+        "EXPO_PUBLIC_API_BASE_URL": "https://uranai-kikkake-api-dev.rabo-hohoemi.workers.dev",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": ""
       }
     }
   },
