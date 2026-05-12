@@ -1,0 +1,49 @@
+{
+  "cli": {
+    "version": ">= 18.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_ENV": "development",
+        "EXPO_PUBLIC_AUTH_MODE": "stub",
+        "EXPO_PUBLIC_API_BASE_URL": "https://uranai-kikkake-api-dev.rabo-hohoemi.workers.dev"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_ENV": "preview",
+        "EXPO_PUBLIC_AUTH_MODE": "google",
+        "EXPO_PUBLIC_API_BASE_URL": "https://uranai-kikkake-api-dev.rabo-hohoemi.workers.dev"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_AUTH_MODE": "google",
+        "EXPO_PUBLIC_API_BASE_URL": "https://uranai-kikkake-api-dev.rabo-hohoemi.workers.dev"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "internal"
+      }
+    }
+  }
+}

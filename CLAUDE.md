@@ -73,6 +73,21 @@ npm run lint           # expo lint
 
 **`EXPO_PUBLIC_*` はバイナリにインライン展開される**ため、機密情報を入れない。Gemini キーなどは Workers 側 secret のみ。
 
+## EAS Build
+
+ネイティブビルドは EAS Build で生成する。`eas.json` に 3 プロファイル定義:
+
+| プロファイル | 用途 | 形式 | AUTH_MODE | bundleId |
+|------|------|------|-----------|----------|
+| `development` | dev client での実機開発(stub 認証) | APK | `stub` | `.dev` 付き |
+| `preview` | Internal Testing(本番認証で動作確認) | APK | `google` | `.dev` 付き |
+| `production` | Play Store 提出用(本番) | AAB | `google` | clean |
+
+- ビルド: `eas build --profile <名前> --platform android`
+- 提出: `eas submit --profile production`(Internal トラックへ)
+- env 切替は `eas.json` の `profile.env` で行う(`.env` よりこちらが優先)
+- 詳細・キーストア・トラブルシュートは [`docs/23-eas-build.md`](./docs/23-eas-build.md)
+
 ## ポリシーページのホスティング
 
 プライバシーポリシー / 利用規約は `legal/` 配下の静的 HTML を **GitHub Pages**(`main` ブランチ / `/` root 配信)で公開する。
