@@ -21,6 +21,10 @@ export const TabAccent: Record<TabKey, string> = {
   match: Colors.match,
 };
 
+export function isTabKey(v: unknown): v is TabKey {
+  return v === 'charm' || v === 'palm' || v === 'match';
+}
+
 export const Fonts = {
   rounded: 'MPLUSRounded1c_400Regular',
   roundedBold: 'MPLUSRounded1c_700Bold',

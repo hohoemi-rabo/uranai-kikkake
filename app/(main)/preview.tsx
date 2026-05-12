@@ -5,13 +5,9 @@ import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AnalyzingOverlay } from '@/components/AnalyzingOverlay';
-import { TabAccent, type TabKey } from '@/constants/theme';
+import { isTabKey, TabAccent, type TabKey } from '@/constants/theme';
 import { useDivine } from '@/hooks/useDivine';
 import { prepareForUpload } from '@/lib/image';
-
-function isTabKey(v: unknown): v is TabKey {
-  return v === 'charm' || v === 'palm' || v === 'match';
-}
 
 const CTA_LABEL: Record<TabKey, string> = {
   charm: '魅力を発見する',
@@ -45,12 +41,10 @@ export default function PreviewScreen() {
       const prepared = await prepareForUpload(uri);
       const outcome = await divine(mode, prepared.base64);
       if (outcome.ok) {
-        // チケット 16 で router.replace に差し替え:
-        //   router.replace({ pathname: '/(main)/result', params: { result: JSON.stringify(outcome.result), mode } });
-        Alert.alert(
-          '診断成功(チケット 16 で結果画面に遷移)',
-          JSON.stringify({ result: outcome.result, usage: outcome.usage }, null, 2).slice(0, 1500),
-        );
+        router.replace({
+          pathname: '/(main)/result',
+          params: { result: JSON.stringify(outcome.result), mode },
+        });
         return;
       }
       switch (outcome.kind) {
