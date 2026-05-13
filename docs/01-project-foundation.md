@@ -17,7 +17,7 @@ Expo スターターを「占いキッカケ」用の基盤に入れ替える。
 - [×] `expo-font` で M PLUS Rounded 1c(400/700/900)を読み込み、`SplashScreen.preventAutoHideAsync` でフォント読み込み完了まで待機
 - [×] `constants/theme.ts` を REQUIREMENTS §5.1 のカラーシステムに置換(ダークモード関連を削除)
 - [×] `app.json` を `app.config.ts` に置換し、`APP_ENV` で `name` / `bundleIdentifier` / `package` を分岐
-- [×] バンドル ID `jp.hohoemi-rabo.uranaikikkake` / dev は `.dev` サフィックス
+- [×] バンドル ID `jp.hohoemirabo.uranaikikkake` / dev は `.dev` サフィックス
 - [×] `app/_layout.tsx` から `DarkTheme` 切り替えを撤去し、固定の light テーマに変更
 - [×] スターターのサンプル画面(`(tabs)/explore.tsx`、`modal.tsx`、サンプルコンポーネント)を削除
 

@@ -1,7 +1,7 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 const IS_PROD = process.env.APP_ENV === 'production';
-const BUNDLE_BASE = 'jp.hohoemi-rabo.uranaikikkake';
+const BUNDLE_BASE = 'jp.hohoemirabo.uranaikikkake';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,

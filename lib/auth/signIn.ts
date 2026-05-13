@@ -8,7 +8,7 @@ export async function signIn(provider: Provider = DEFAULT_MODE): Promise<AuthSes
   if (provider === 'stub') return signInStub();
   if (provider === 'google') {
     throw new Error(
-      'Google サインインは `useGoogleSignIn` Hook 経由で行ってください(`app/(auth)/login.tsx` 参照)',
+      'Google サインインは `signInWithGoogle()` 関数を直接呼んでください(`app/(auth)/login.tsx` 参照)',
     );
   }
   if (provider === 'apple') {

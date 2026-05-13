@@ -16,7 +16,7 @@
 
 ドラフト準備完了マーク `[〜]` = `docs/store/` 配下にコピペ用のドラフトあり、Play Console 入力はユーザー手動。
 
-- [ ] Play Console でアプリ作成、Package: `jp.hohoemi-rabo.uranaikikkake`(ユーザー手動、25 USD アカウント開設後)
+- [ ] Play Console でアプリ作成、Package: `jp.hohoemirabo.uranaikikkake`(ユーザー手動、25 USD アカウント開設後)
 - [×] 機能グラフィック(1024×500)準備 — `assets/store/play-feature-graphic-1024x500.png`(チケット 22 で生成)
 - [ ] スクリーンショット撮影 — 手順は [`store/screenshot-guide.md`](./store/screenshot-guide.md)、25 完了後に実機 / エミュレータで撮影
 - [〜] 短い説明 / 詳細な説明 — [`store/play-listing-draft.md`](./store/play-listing-draft.md) でドラフト準備済み
@@ -32,7 +32,7 @@
 
 - [ ] Apple Developer Program 加入
 - [ ] チケット 05(Apple ログイン)を完了
-- [ ] App Store Connect でアプリレコード作成、Bundle ID: `jp.hohoemi-rabo.uranaikikkake`
+- [ ] App Store Connect でアプリレコード作成、Bundle ID: `jp.hohoemirabo.uranaikikkake`
 - [ ] スクリーンショット撮影(各 iPhone サイズ)
 - [ ] アプリ説明文・サブタイトル「会話がもっと楽しくなる」
 - [ ] カテゴリ: **エンターテイメント**

@@ -23,7 +23,7 @@
 - ストア表示名: **占いキッカケ**
 - サブタイトル: **会話がもっと楽しくなる**(Web版から継承)
 - Web版「占いキッカケ」(Gemini Canvas提出版)のブランドを継承するモバイル版という位置づけ
-- バンドルID / パッケージ名は別途決定(候補: `jp.hohoemi-rabo.uranaikikkake`)
+- バンドルID / パッケージ名は別途決定(候補: `jp.hohoemirabo.uranaikikkake`)
 
 ### 1.2 コンセプト
 
@@ -804,7 +804,7 @@ id = "..."
 ## 14. 開発開始前のチェックリスト
 
 - [x] アプリ名の最終決定 → **占いキッカケ**
-- [ ] バンドルID / パッケージ名の決定(候補: `jp.hohoemi-rabo.uranaikikkake`)
+- [ ] バンドルID / パッケージ名の決定(候補: `jp.hohoemirabo.uranaikikkake`)
 - [ ] Apple Developer Program 加入(年額)
 - [ ] Google Play Developer Console 加入(初回のみ)
 - [ ] Google Cloud Console プロジェクト作成 + OAuth クライアントID発行

@@ -42,6 +42,8 @@
 
 **3 つ作る必要あり**(ただし iOS Client ID はフェーズ 2 で後回し可)。
 
+> ⚠️ **順序の注意**: Android Client ID 作成には **SHA-1 が必須**。SHA-1 は EAS Build 後にしか取れないので、**先に C-1 を作って Web Client ID を確保 → D 節で SHA-1 を取得 → C-2 / C-3 に戻る** の流れがスムーズ。
+
 ### C-1. Web アプリケーション Client ID(**必須**)
 
 - 左メニュー → **「API とサービス」 → 「認証情報」** → **「+ 認証情報を作成」 → 「OAuth クライアント ID」**
@@ -52,14 +54,14 @@
 
 → この ID が **`EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`** と Workers の **`GOOGLE_CLIENT_IDS`** に入る。
 
-### C-2. Android Client ID(**必須**)
+### C-2. Android Client ID(**必須、ただし D 節後に作る**)
 
-EAS Build で SHA-1 を取得する必要があるので、まず先に **D 節** で SHA-1 を取得してから戻ってくる。
+> 📌 **このセクションは D 節(EAS Build → SHA-1 取得)を終えてから戻ってきてください。** SHA-1 がないと作成フォームを送信できません。
 
 1. 左メニュー → **「認証情報」** → 「+ 認証情報を作成」 → **「OAuth クライアント ID」**
 2. アプリケーションの種類: **Android**
 3. 名前: `uranai-kikkake-android-prod`
-4. **パッケージ名**: `jp.hohoemi-rabo.uranaikikkake`
+4. **パッケージ名**: `jp.hohoemirabo.uranaikikkake`
 5. **SHA-1 証明書フィンガープリント**: D 節で取得した production の SHA-1
 6. 「作成」
 
@@ -67,7 +69,7 @@ EAS Build で SHA-1 を取得する必要があるので、まず先に **D 節*
 1. 「OAuth クライアント ID」
 2. 種類: Android
 3. 名前: `uranai-kikkake-android-dev`
-4. パッケージ名: `jp.hohoemi-rabo.uranaikikkake.dev`(`.dev` 付き)
+4. パッケージ名: `jp.hohoemirabo.uranaikikkake.dev`(`.dev` 付き)
 5. SHA-1: D 節で取得した development profile の SHA-1
 6. 「作成」
 
@@ -119,17 +121,19 @@ eas credentials -p android
 
 ### E-1. `eas.json`
 
+⚠️ **EAS の eas.json バリデータは空文字の env を許可しない**。空 placeholder は書かない/置かない方針。Client ID を **取得してから初めて** 追記する:
+
 ```json
 "preview": {
   "env": {
-    ...
+    ...既存...,
     "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "XXXXXXXXXX.apps.googleusercontent.com",
     "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "YYYYYYYYYY.apps.googleusercontent.com"
   }
 }
 ```
 
-production セクションも同様に。
+production セクションも同様に。**Client ID 未取得の状態で空文字を入れて先に書こうとすると `eas build` がバリデーションエラーで止まる**(`"... is not allowed to be empty"`)。
 
 ### E-2. Workers 本番に `GOOGLE_CLIENT_IDS` を投入
 
@@ -193,6 +197,7 @@ eas build --profile development --platform android
 |------|------|------|
 | `idpiframe_initialization_failed` | Web Client ID 未投入 | `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` を確認 |
 | `redirect_uri_mismatch` | パッケージ名 / SHA-1 と Client ID 設定の不一致 | Google Cloud Console で SHA-1 とパッケージ名を再確認 |
+| `eas.json is not valid - ... is not allowed to be empty` | env に空文字 placeholder を書いた | 空文字キーは削除。Client ID 取得後に追記する |
 | Workers が 401 を返す | `aud` クレームと `GOOGLE_CLIENT_IDS` の不一致 | Web Client ID を入れているか確認(Android ID ではない) |
 | Workers が 401 で `STUB_NOT_ALLOWED` | Workers 本番に stub バイパスが効いていない(正常)、クライアントが stub を送っている | クライアントの `AUTH_MODE` を確認 |
 | ログイン後アプリに戻らない | `scheme: 'uranaikikkake'` が `app.config.ts` から取れていない | `app.config.ts` を確認、`prebuild --clean` で再生成 |

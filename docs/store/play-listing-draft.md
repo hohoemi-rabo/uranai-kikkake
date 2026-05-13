@@ -12,7 +12,7 @@ Play Console にコピー&ペーストで投入する用。
 | デフォルト言語 | 日本語(ja-JP) |
 | アプリ / ゲーム | アプリ |
 | 無料 / 有料 | 無料 |
-| パッケージ名 | `jp.hohoemi-rabo.uranaikikkake` |
+| パッケージ名 | `jp.hohoemirabo.uranaikikkake` |
 
 ---
 

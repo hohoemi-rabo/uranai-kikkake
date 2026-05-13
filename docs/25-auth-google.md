@@ -50,6 +50,6 @@
 - **`useGoogleSignIn` は React Hook なので関数 API には包めない**: `signIn.ts` の関数チェーンとは別ルートで login 画面が直接呼ぶ + `useAuth().signInWithSession(session)` で完了する分離構造
 - **Hooks rule 準拠の分離コンポーネント**: `GoogleLoginButton` と `StubLoginButton` を別コンポーネントにして、AUTH_MODE で切り替え
 - **id_token の sub 取得は自前 base64url decode**(`lib/auth/google.ts:decodeJwtPayload`)。`jose` は Workers 側だけで使う(クライアントには不要)
-- **Android 用パッケージ名は dev/prod の 2 種類**: `jp.hohoemi-rabo.uranaikikkake` / `jp.hohoemi-rabo.uranaikikkake.dev`(`app.config.ts:18,21`)。Google Cloud Console で **2 つの Android Client ID** を作って SHA-1 をそれぞれ登録するのが分かりやすい
+- **Android 用パッケージ名は dev/prod の 2 種類**: `jp.hohoemirabo.uranaikikkake` / `jp.hohoemirabo.uranaikikkake.dev`(`app.config.ts:18,21`)。Google Cloud Console で **2 つの Android Client ID** を作って SHA-1 をそれぞれ登録するのが分かりやすい
 - **`WebBrowser.maybeCompleteAuthSession()` をモジュールトップで呼ぶ**: redirect 後のアプリ復帰時にブラウザを閉じる必須処理。`lib/auth/google.ts:7` で呼んでいる
 - **Client ID は機密ではない**(audience 識別子)。`EXPO_PUBLIC_*` で JS バンドルに展開しても OK。Client Secret は Public Client(モバイル)では使わない

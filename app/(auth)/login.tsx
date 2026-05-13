@@ -3,7 +3,7 @@ import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/hooks/useAuth';
-import { useGoogleSignIn } from '@/lib/auth/google';
+import { signInWithGoogle } from '@/lib/auth/google';
 
 const AUTH_MODE = process.env.EXPO_PUBLIC_AUTH_MODE ?? 'stub';
 
@@ -38,21 +38,27 @@ function StubLoginButton() {
 function GoogleLoginButton() {
   const { signInWithSession } = useAuth();
   const [loading, setLoading] = useState(false);
-  const { start } = useGoogleSignIn({
-    onSuccess: async (session) => {
-      await signInWithSession(session);
-      setLoading(false);
-    },
-    onCancel: () => setLoading(false),
-    onError: (msg) => {
-      setLoading(false);
-      Alert.alert('ログインに失敗しました', msg);
-    },
-  });
 
-  const handlePress = () => {
+  const handlePress = async () => {
+    if (loading) return;
     setLoading(true);
-    void start();
+    try {
+      const outcome = await signInWithGoogle();
+      if (outcome.ok) {
+        await signInWithSession(outcome.session);
+      } else if (outcome.reason === 'cancelled') {
+        // ユーザーキャンセル: 何もしない
+      } else {
+        Alert.alert('ログインに失敗しました', outcome.message ?? 'もう一度お試しください');
+      }
+    } catch (e) {
+      Alert.alert(
+        'ログインに失敗しました',
+        e instanceof Error ? e.message : 'もう一度お試しください',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
