@@ -3,7 +3,7 @@ import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/hooks/useAuth';
-import { signInWithGoogle } from '@/lib/auth/google';
+import { startGoogleSignIn } from '@/lib/auth/google';
 
 const AUTH_MODE = process.env.EXPO_PUBLIC_AUTH_MODE ?? 'stub';
 
@@ -36,21 +36,17 @@ function StubLoginButton() {
 }
 
 function GoogleLoginButton() {
-  const { signInWithSession } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handlePress = async () => {
     if (loading) return;
     setLoading(true);
     try {
-      const outcome = await signInWithGoogle();
-      if (outcome.ok) {
-        await signInWithSession(outcome.session);
-      } else if (outcome.reason === 'cancelled') {
-        // ユーザーキャンセル: 何もしない
-      } else {
-        Alert.alert('ログインに失敗しました', outcome.message ?? 'もう一度お試しください');
-      }
+      // OAuth セッションを開く。
+      // 成功時は GitHub Pages 経由で `uranaikikkake://oauth/google/callback?code=...` が
+      // OS 経由でアプリに配信され、`app/oauth/google/callback.tsx` が認証を完結する。
+      // ここでは Browser dismiss(ユーザーキャンセル or callback 配信後の自動 close)を待つだけ。
+      await startGoogleSignIn();
     } catch (e) {
       Alert.alert(
         'ログインに失敗しました',
