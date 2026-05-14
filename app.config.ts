@@ -13,6 +13,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: 'uranaikikkake',
   userInterfaceStyle: 'light',
   newArchEnabled: true,
+  // EAS Update(OTA 配信)。JS / 画像だけの変更は `eas update` で配信でき、
+  // ビルド枠を消費しない。runtimeVersion は fingerprint ポリシー = ネイティブ層の
+  // ハッシュ。ネイティブが変わると自動で値が変わり、互換しないビルドへの誤配信を防ぐ。
+  updates: {
+    url: 'https://u.expo.dev/031e6171-96a4-4eec-852b-a304c30ed32e',
+  },
+  runtimeVersion: {
+    policy: 'fingerprint',
+  },
   ios: {
     supportsTablet: true,
     bundleIdentifier: IS_PROD ? BUNDLE_BASE : `${BUNDLE_BASE}.dev`,
