@@ -20,6 +20,13 @@ const GOOGLE_AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
 // — 低メモリの古い端末で起こりうる — に失われ、callback で no-pending になってしまう。
 const PKCE_STORE_KEY = 'oauth_pkce_pending';
 
+// 同一プロセス内での completeGoogleSignIn 二重実行ガード。
+// callback 画面は「OS の deep link 配信」と「startGoogleSignIn の router.replace」の
+// 両方でマウントされうる(端末依存)。認可コードは 1 回限り有効なので、2 回目の
+// トークン交換は必ず invalid_grant で失敗する。最初の Promise を共有して交換を 1 回に抑える。
+// startGoogleSignIn で新フロー開始時に null にリセットする。
+let inFlightCompletion: Promise<GoogleSignInOutcome> | null = null;
+
 function decodeJwtPayload(jwt: string): { sub?: string } | null {
   try {
     const [, payloadB64] = jwt.split('.');
@@ -69,6 +76,9 @@ export async function startGoogleSignIn(): Promise<void> {
     throw new Error('GOOGLE_WEB_CLIENT_ID が未設定です');
   }
 
+  // 新しいフローを開始するので、前回の完了結果(再ログイン時の古い Promise)をリセット
+  inFlightCompletion = null;
+
   // PKCE と state を生成して SecureStore に保持(callback 画面で照合する)
   const verifierBytes = await Crypto.getRandomBytesAsync(32);
   const codeVerifier = bytesToBase64Url(verifierBytes);
@@ -117,8 +127,23 @@ export async function startGoogleSignIn(): Promise<void> {
 
 /**
  * Callback 画面から呼ばれる。クエリパラメータの code/state を検証してトークン交換する。
+ *
+ * callback 画面が二重マウントされても、同一プロセス内なら最初の Promise を共有する
+ * (`inFlightCompletion`)。実体は `runCompleteGoogleSignIn`。
  */
-export async function completeGoogleSignIn(params: {
+export function completeGoogleSignIn(params: {
+  code?: string;
+  state?: string;
+  error?: string;
+}): Promise<GoogleSignInOutcome> {
+  if (inFlightCompletion) {
+    return inFlightCompletion;
+  }
+  inFlightCompletion = runCompleteGoogleSignIn(params);
+  return inFlightCompletion;
+}
+
+async function runCompleteGoogleSignIn(params: {
   code?: string;
   state?: string;
   error?: string;
