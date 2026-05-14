@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
 import { Colors } from '@/constants/theme';
@@ -15,15 +15,21 @@ export default function GoogleCallback() {
   }>();
   const { signInWithSession } = useAuth();
 
+  // completeGoogleSignIn は pendingPkce を 1 回しか消費できない。
+  // effect が再実行されると 2 回目は no-pending を返してログイン画面に弾かれるため、
+  // useRef のフラグで「1 回限り実行」を保証する。
+  const hasRun = useRef(false);
+
   useEffect(() => {
-    let cancelled = false;
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     (async () => {
       const outcome = await completeGoogleSignIn({
         code: typeof params.code === 'string' ? params.code : undefined,
         state: typeof params.state === 'string' ? params.state : undefined,
         error: typeof params.error === 'string' ? params.error : undefined,
       });
-      if (cancelled) return;
 
       if (outcome.ok) {
         await signInWithSession(outcome.session);
@@ -36,9 +42,6 @@ export default function GoogleCallback() {
       }
       router.replace('/(auth)/login');
     })();
-    return () => {
-      cancelled = true;
-    };
   }, [params.code, params.state, params.error, router, signInWithSession]);
 
   return (
