@@ -8,13 +8,13 @@ import { Redirect, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { Colors } from '@/constants/theme';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
-import { getOnboardingCompleted } from '@/lib/onboarding';
+import { OnboardingProvider, useOnboarding } from '@/hooks/useOnboarding';
 import '../global.css';
 
 export const unstable_settings = {
@@ -30,14 +30,8 @@ function RootContent() {
     MPLUSRounded1c_700Bold,
     MPLUSRounded1c_900Black,
   });
-  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
+  const { onboardingDone } = useOnboarding();
   const { isLoading: authLoading } = useAuth();
-
-  useEffect(() => {
-    getOnboardingCompleted()
-      .then(setOnboardingDone)
-      .catch(() => setOnboardingDone(false));
-  }, []);
 
   useEffect(() => {
     if ((loaded || error) && onboardingDone !== null && !authLoading) {
@@ -67,7 +61,9 @@ function RootContent() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootContent />
+      <OnboardingProvider>
+        <RootContent />
+      </OnboardingProvider>
     </AuthProvider>
   );
 }

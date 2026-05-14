@@ -5,7 +5,7 @@ import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/hooks/useAuth';
-import { clearOnboardingCompleted } from '@/lib/onboarding';
+import { useOnboarding } from '@/hooks/useOnboarding';
 
 const PRIVACY_URL = 'https://hohoemi-rabo.github.io/uranai-kikkake/legal/privacy.html';
 const TERMS_URL = 'https://hohoemi-rabo.github.io/uranai-kikkake/legal/terms.html';
@@ -16,6 +16,7 @@ const CONTACT_MAILTO =
 export default function SettingsScreen() {
   const router = useRouter();
   const { signOut } = useAuth();
+  const { resetOnboarding } = useOnboarding();
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   const handleTerms = () => {
@@ -45,7 +46,7 @@ export default function SettingsScreen() {
         {
           text: '表示する',
           onPress: async () => {
-            await clearOnboardingCompleted();
+            await resetOnboarding();
             router.replace('/(auth)/onboarding');
           },
         },

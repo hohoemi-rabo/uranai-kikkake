@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { setOnboardingCompleted } from '@/lib/onboarding';
+import { useOnboarding } from '@/hooks/useOnboarding';
 
 type Slide = {
   emoji: string;
@@ -45,6 +45,7 @@ const { width } = Dimensions.get('window');
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { completeOnboarding } = useOnboarding();
   const [index, setIndex] = useState(0);
   const offset = useSharedValue(0);
 
@@ -55,7 +56,7 @@ export default function OnboardingScreen() {
   };
 
   const handleFinish = async () => {
-    await setOnboardingCompleted();
+    await completeOnboarding();
     router.replace('/(auth)/login');
   };
 
