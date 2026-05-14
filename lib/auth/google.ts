@@ -8,12 +8,12 @@ import type { AuthSession } from './types';
 WebBrowser.maybeCompleteAuthSession();
 
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || '';
 const REDIRECT_URI =
   'https://hohoemi-rabo.github.io/uranai-kikkake/oauth/redirect.html';
 const APP_CALLBACK_URL = 'uranaikikkake://oauth/google/callback';
 
 const GOOGLE_AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
-const GOOGLE_TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
 
 // PKCE 検証値と state は SecureStore に永続化する。
 // module 変数だと、OAuth 中(Custom Tabs 表示中)に Android がアプリを kill した場合
@@ -155,16 +155,17 @@ export async function completeGoogleSignIn(params: {
   }
 
   try {
-    const tokenRes = await fetch(GOOGLE_TOKEN_ENDPOINT, {
+    // トークン交換は Workers 側で行う。「ウェブアプリケーション」型 OAuth クライアントは
+    // confidential client で client_secret が必須だが、それは機密なのでアプリには持たせず
+    // Workers の secret に置く。アプリは code/code_verifier/clientId だけを Workers に渡す。
+    const tokenRes = await fetch(`${API_BASE_URL}/api/auth/google`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: WEB_CLIENT_ID,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         code: params.code,
-        code_verifier: codeVerifier,
-        redirect_uri: REDIRECT_URI,
-      }).toString(),
+        codeVerifier,
+        clientId: WEB_CLIENT_ID,
+      }),
     });
 
     if (!tokenRes.ok) {
@@ -176,19 +177,19 @@ export async function completeGoogleSignIn(params: {
       };
     }
 
-    const tokens = (await tokenRes.json()) as { id_token?: string };
-    if (!tokens.id_token) {
+    const tokens = (await tokenRes.json()) as { idToken?: string };
+    if (!tokens.idToken) {
       return { ok: false, reason: 'error', message: 'id_token が応答に含まれません' };
     }
 
-    const payload = decodeJwtPayload(tokens.id_token);
+    const payload = decodeJwtPayload(tokens.idToken);
     if (!payload?.sub) {
       return { ok: false, reason: 'error', message: 'id_token に sub がありません' };
     }
 
     return {
       ok: true,
-      session: { idToken: tokens.id_token, provider: 'google', sub: payload.sub },
+      session: { idToken: tokens.idToken, provider: 'google', sub: payload.sub },
     };
   } catch (e) {
     return {

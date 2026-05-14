@@ -8,9 +8,16 @@ export interface Env {
   ALLOWED_ORIGINS?: string;
   GEMINI_API_KEY?: string;
   GOOGLE_CLIENT_IDS?: string;
+  GOOGLE_CLIENT_SECRET?: string;
   APPLE_BUNDLE_ID?: string;
   DEV_BYPASS_ENABLED?: string;
 }
+
+const GOOGLE_TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
+// app の lib/auth/google.ts:REDIRECT_URI と完全一致させること
+// (Google はトークン交換時に認可リクエスト時の redirect_uri と照合する)
+const GOOGLE_REDIRECT_URI =
+  'https://hohoemi-rabo.github.io/uranai-kikkake/oauth/redirect.html';
 
 const ALLOWED_METHODS = 'POST, OPTIONS';
 const ALLOWED_HEADERS = 'Authorization, Content-Type, X-Dev-Sub';
@@ -57,6 +64,98 @@ export default {
         return new Response(null, { status: 403 });
       }
       return new Response(null, { status: 204, headers: cors });
+    }
+
+    // Google OAuth: 認可コードのトークン交換を Workers 側で行う。
+    // 「ウェブアプリケーション」型 OAuth クライアントは confidential client で、
+    // Google がトークン交換に client_secret を必須とする。client_secret は機密なので
+    // アプリバイナリ(EXPO_PUBLIC_*)には入れず、Workers の secret として保持する。
+    if (url.pathname === '/api/auth/google' && req.method === 'POST') {
+      let body: { code?: unknown; codeVerifier?: unknown; clientId?: unknown };
+      try {
+        body = (await req.json()) as {
+          code?: unknown;
+          codeVerifier?: unknown;
+          clientId?: unknown;
+        };
+      } catch {
+        return jsonResponse(
+          { error: 'BAD_REQUEST', message: 'Invalid JSON body' },
+          { status: 400, headers: cors },
+        );
+      }
+
+      const code = typeof body.code === 'string' ? body.code : null;
+      const codeVerifier =
+        typeof body.codeVerifier === 'string' ? body.codeVerifier : null;
+      const clientId = typeof body.clientId === 'string' ? body.clientId : null;
+      if (!code || !codeVerifier || !clientId) {
+        return jsonResponse(
+          { error: 'BAD_REQUEST', message: 'code, codeVerifier, clientId are required' },
+          { status: 400, headers: cors },
+        );
+      }
+
+      // clientId は GOOGLE_CLIENT_IDS の許可リストに含まれること(任意の client_id を弾く)
+      const allowedIds = (env.GOOGLE_CLIENT_IDS ?? '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (!allowedIds.includes(clientId)) {
+        return jsonResponse(
+          { error: 'UNAUTHORIZED', message: 'clientId is not allowed' },
+          { status: 401, headers: cors },
+        );
+      }
+      if (!env.GOOGLE_CLIENT_SECRET) {
+        return jsonResponse(
+          { error: 'SERVER_ERROR', message: 'GOOGLE_CLIENT_SECRET is not configured' },
+          { status: 500, headers: cors },
+        );
+      }
+
+      let tokenRes: Response;
+      try {
+        tokenRes = await fetch(GOOGLE_TOKEN_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: clientId,
+            client_secret: env.GOOGLE_CLIENT_SECRET,
+            code,
+            code_verifier: codeVerifier,
+            redirect_uri: GOOGLE_REDIRECT_URI,
+          }).toString(),
+        });
+      } catch {
+        return jsonResponse(
+          { error: 'UPSTREAM_ERROR', message: 'Failed to reach Google token endpoint' },
+          { status: 502, headers: cors },
+        );
+      }
+
+      if (!tokenRes.ok) {
+        const errText = await tokenRes.text();
+        console.log(
+          `google token exchange fail: status=${tokenRes.status} ${errText.slice(0, 200)}`,
+        );
+        return jsonResponse(
+          { error: 'UNAUTHORIZED', message: 'Token exchange failed' },
+          { status: 401, headers: cors },
+        );
+      }
+
+      const tokens = (await tokenRes.json()) as { id_token?: string };
+      if (!tokens.id_token) {
+        return jsonResponse(
+          { error: 'UNAUTHORIZED', message: 'No id_token in token response' },
+          { status: 401, headers: cors },
+        );
+      }
+
+      console.log('google token exchange ok');
+      return jsonResponse({ idToken: tokens.id_token }, { headers: cors });
     }
 
     if (url.pathname === '/api/divine' && req.method === 'POST') {

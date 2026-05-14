@@ -134,12 +134,16 @@ wrangler deploy --env production
 
 # secret 投入
 wrangler secret put GEMINI_API_KEY
-wrangler secret put GOOGLE_CLIENT_IDS                       # カンマ区切り
+wrangler secret put GOOGLE_CLIENT_IDS                       # カンマ区切り(Web Client ID)
+wrangler secret put GOOGLE_CLIENT_SECRET                    # Web Client の client_secret
 wrangler secret put APPLE_BUNDLE_ID                         # フェーズ 2 で
 wrangler secret put DEV_BYPASS_ENABLED                      # dev 環境のみ true
 ```
 
 dev / 本番で同じ secret 名を使うが、**本番では `DEV_BYPASS_ENABLED` を投入しない**。
+
+`POST /api/auth/google`(OAuth 認可コードのトークン交換)は `GOOGLE_CLIENT_IDS` と
+`GOOGLE_CLIENT_SECRET` の両方が無いと動かない。dev / 本番それぞれに投入すること。
 
 ## チケット 07 完了時の知見
 
