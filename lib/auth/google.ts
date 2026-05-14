@@ -1,4 +1,6 @@
 import * as Crypto from 'expo-crypto';
+import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
 
 import type { AuthSession } from './types';
@@ -13,8 +15,10 @@ const APP_CALLBACK_URL = 'uranaikikkake://oauth/google/callback';
 const GOOGLE_AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
 
-// OAuth フロー開始から callback 画面に渡るまで PKCE 検証値と state を保持する
-let pendingPkce: { codeVerifier: string; state: string } | null = null;
+// PKCE 検証値と state は SecureStore に永続化する。
+// module 変数だと、OAuth 中(Custom Tabs 表示中)に Android がアプリを kill した場合
+// — 低メモリの古い端末で起こりうる — に失われ、callback で no-pending になってしまう。
+const PKCE_STORE_KEY = 'oauth_pkce_pending';
 
 function decodeJwtPayload(jwt: string): { sub?: string } | null {
   try {
@@ -65,14 +69,17 @@ export async function startGoogleSignIn(): Promise<void> {
     throw new Error('GOOGLE_WEB_CLIENT_ID が未設定です');
   }
 
-  // PKCE と state を生成して保持(callback 画面で照合する)
+  // PKCE と state を生成して SecureStore に保持(callback 画面で照合する)
   const verifierBytes = await Crypto.getRandomBytesAsync(32);
   const codeVerifier = bytesToBase64Url(verifierBytes);
   const codeChallenge = await sha256Base64Url(codeVerifier);
   const stateBytes = await Crypto.getRandomBytesAsync(16);
   const state = bytesToBase64Url(stateBytes);
 
-  pendingPkce = { codeVerifier, state };
+  await SecureStore.setItemAsync(
+    PKCE_STORE_KEY,
+    JSON.stringify({ codeVerifier, state }),
+  );
 
   const authUrl =
     GOOGLE_AUTH_ENDPOINT +
@@ -88,11 +95,24 @@ export async function startGoogleSignIn(): Promise<void> {
       prompt: 'select_account',
     }).toString();
 
-  // openAuthSessionAsync は Custom Tabs を開き、Browser dismiss で Promise resolve する。
-  // 我々のフローでは GH Pages の JS が `uranaikikkake://...` に遷移し、
-  // OS が deep link としてアプリに配信 → expo-router が callback 画面に到達する流れ。
-  // openAuthSessionAsync 側は dismiss と認識されて resolve するので、戻り値の type は気にしない。
-  await WebBrowser.openAuthSessionAsync(authUrl, APP_CALLBACK_URL);
+  // 通常は GH Pages の JS が `uranaikikkake://...` に遷移 → OS が deep link 配信 →
+  // expo-router が callback 画面をルーティングする(result.type は 'dismiss')。
+  // 一部端末では Custom Tabs 側がリダイレクトを横取りして result.type === 'success' になり、
+  // その場合は OS の deep link 配信が起きず callback 画面が起動しない。
+  // → 戻り値が success のときは、ここで明示的に callback ルートへ流して経路を統一する。
+  const result = await WebBrowser.openAuthSessionAsync(authUrl, APP_CALLBACK_URL);
+  if (result.type === 'success' && result.url) {
+    const queryIndex = result.url.indexOf('?');
+    const search = new URLSearchParams(
+      queryIndex >= 0 ? result.url.slice(queryIndex + 1) : '',
+    );
+    const params: Record<string, string> = {};
+    for (const key of ['code', 'state', 'error'] as const) {
+      const v = search.get(key);
+      if (v) params[key] = v;
+    }
+    router.replace({ pathname: '/oauth/google/callback', params });
+  }
 }
 
 /**
@@ -103,15 +123,26 @@ export async function completeGoogleSignIn(params: {
   state?: string;
   error?: string;
 }): Promise<GoogleSignInOutcome> {
-  if (!pendingPkce) {
+  // SecureStore から PKCE 検証値を取り出す。1 回しか消費できないよう、読み出し直後に削除する。
+  let pending: { codeVerifier: string; state: string } | null = null;
+  try {
+    const raw = await SecureStore.getItemAsync(PKCE_STORE_KEY);
+    if (raw) {
+      await SecureStore.deleteItemAsync(PKCE_STORE_KEY);
+      pending = JSON.parse(raw) as { codeVerifier: string; state: string };
+    }
+  } catch {
+    pending = null;
+  }
+
+  if (!pending) {
     return {
       ok: false,
       reason: 'no-pending',
       message: '保留中の OAuth フローがありません',
     };
   }
-  const { codeVerifier, state } = pendingPkce;
-  pendingPkce = null;
+  const { codeVerifier, state } = pending;
 
   if (params.error) {
     return { ok: false, reason: 'error', message: 'OAuth エラー: ' + params.error };
