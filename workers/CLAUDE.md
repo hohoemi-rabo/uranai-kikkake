@@ -217,3 +217,12 @@ dev / 本番で同じ secret 名を使うが、**本番では `DEV_BYPASS_ENABLE
 - **dev Workers では `DEV_BYPASS_ENABLED=true`**: Expo Go + stub フロー専用に維持。本番 Workers と完全分離(`wrangler.toml` の env.production を別エントリで管理)
 - **`verifyGoogle` の audience 検証**: Workers は `jose.jwtVerify` で `aud` を自動検証。Client ID 一覧と一致しない id_token は弾く。クライアントが間違った Client ID を使うと 401 に
 - **クライアント側の id_token decode は audience 検証なし**: クライアントは sub を取り出すだけで、audience の正当性は Workers が責任を持つ(信頼境界の置き場所)
+
+### トークン交換エンドポイント `POST /api/auth/google`(実機デバッグで追加)
+
+- **なぜ Workers でトークン交換するのか**: 「ウェブアプリケーション」型 OAuth クライアントは confidential client で、Google がトークン交換に `client_secret` を**必須**にする(アプリ側で直接交換すると `invalid_request` / `client_secret is missing`)。`client_secret` は機密なのでアプリに持たせず、アプリは `code`/`codeVerifier`/`clientId` を Workers に送り、Workers が `GOOGLE_CLIENT_SECRET` を足して Google と交換、`idToken` を返す
+- **`GOOGLE_CLIENT_SECRET` を secret 投入**: `wrangler secret put GOOGLE_CLIENT_SECRET`(dev は `--env=""`、本番は `--env production`)。値は Google Cloud Console の Web クライアントの「クライアント シークレット」(`GOCSPX-...`)。未投入だと `/api/auth/google` が 500
+- **トークン交換の `redirect_uri` は認可リクエスト時と完全一致が必須**: Google が照合する。`workers/src/index.ts` の `GOOGLE_REDIRECT_URI` 定数とアプリの `lib/auth/google.ts:REDIRECT_URI` を必ず揃える
+- **`clientId` は許可リスト検証してから交換**: リクエストの `clientId` が `GOOGLE_CLIENT_IDS` に含まれるか確認。任意の client_id を弾く
+- **認可コードは 1 回限り**: 同じ code で 2 回交換すると Google が `invalid_grant`。クライアント側の二重実行ガード(app/CLAUDE.md「callback 二重マウント」)と合わせて交換を 1 回に抑える
+- **curl でビルド前検証できる**: 偽の `code` + 正しい `clientId` で叩いて `401 Token exchange failed` が返れば「エンドポイント到達・clientId 検証・`GOOGLE_CLIENT_SECRET` 設定」まで OK(`500 not configured` なら secret 未投入)。EAS ビルドを消費せず確認できる

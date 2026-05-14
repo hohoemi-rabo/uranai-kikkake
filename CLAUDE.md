@@ -88,6 +88,20 @@ npm run lint           # expo lint
 - env 切替は `eas.json` の `profile.env` で行う(`.env` よりこちらが優先)
 - 詳細・キーストア・トラブルシュートは [`docs/23-eas-build.md`](./docs/23-eas-build.md)
 
+## EAS Update(OTA 配信)
+
+`expo-updates` 導入済み。**JS / 画像だけの変更は `eas build` 不要**で配信できる(ビルド枠を消費しない)。
+
+| 変更の種類 | コマンド | ビルド枠 | 反映 |
+|----------|---------|---------|------|
+| JS / 画像 / ロジック | `eas update --branch <channel>` | 消費しない | アプリ再起動 |
+| ネイティブ(モジュール追加・権限・config plugin・SDK 更新) | `eas build` | 消費する | 要再インストール |
+
+- `runtimeVersion` は **`fingerprint` ポリシー**(`app.config.ts`)。ネイティブ層が変わると自動でハッシュが変わり、互換しないビルドへの誤配信を防ぐ
+- channel は `eas.json` の各プロファイルに定義(`development` / `preview` / `production`)。channel と同名の branch に `eas update` で配信
+- 「ネイティブを変えたか?」迷ったら `eas build`(壊れた JS を OTA で配るより安全)
+- 日常の修正は `eas update`、節目(本番リリース・ネイティブ変更)で `eas build` というリズム
+
 ## ストア提出ドラフト
 
 Google Play 提出に必要な情報(説明文・データセーフティ・コンテンツレーティング・レビュアー向けメモ・スクリーンショット手順・提出チェックリスト)を [`docs/store/`](./docs/store/) 配下に **コピペ可能なドラフト** として保管。
