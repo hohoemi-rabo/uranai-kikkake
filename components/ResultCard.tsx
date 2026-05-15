@@ -6,7 +6,7 @@ import { Colors, type TabKey } from '@/constants/theme';
 import type { DivineResultBody } from '@/hooks/useDivine';
 
 const MODE_LABEL: Record<TabKey, string> = {
-  charm: '🌟 魅力発見',
+  charm: '🌟 顔相',
   palm: '✋ 手相',
   match: '💖 相性',
 };
@@ -40,8 +40,8 @@ export const ResultCard = forwardRef<View, Props>(function ResultCard(
       collapsable={false}
       style={{
         width: 1080,
-        backgroundColor: Colors.background,
-        padding: 48,
+        backgroundColor: Colors.shareCanvas,
+        padding: 36,
       }}
     >
       <View
@@ -49,7 +49,7 @@ export const ResultCard = forwardRef<View, Props>(function ResultCard(
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 24,
+          marginBottom: 20,
         }}
       >
         <Text style={{ fontSize: 36, fontWeight: '700', color: Colors.textPrimary }}>
@@ -71,7 +71,7 @@ export const ResultCard = forwardRef<View, Props>(function ResultCard(
 
       <Image
         source={{ uri: photoUri }}
-        style={{ width: '100%', aspectRatio: 1, borderRadius: 24, marginBottom: 24 }}
+        style={{ width: '100%', aspectRatio: 4 / 3, borderRadius: 24, marginBottom: 20 }}
         contentFit="cover"
       />
 
@@ -79,8 +79,8 @@ export const ResultCard = forwardRef<View, Props>(function ResultCard(
         style={{
           backgroundColor: Colors.card,
           borderRadius: 24,
-          padding: 32,
-          marginBottom: 16,
+          padding: 24,
+          marginBottom: 12,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -105,8 +105,8 @@ export const ResultCard = forwardRef<View, Props>(function ResultCard(
         style={{
           backgroundColor: Colors.card,
           borderRadius: 24,
-          padding: 32,
-          marginBottom: 16,
+          padding: 24,
+          marginBottom: 12,
           borderLeftWidth: 8,
           borderLeftColor: accent,
         }}
@@ -123,8 +123,8 @@ export const ResultCard = forwardRef<View, Props>(function ResultCard(
         style={{
           backgroundColor: Colors.cardAlt,
           borderRadius: 24,
-          padding: 32,
-          marginBottom: 16,
+          padding: 24,
+          marginBottom: 12,
         }}
       >
         <Text
@@ -137,67 +137,69 @@ export const ResultCard = forwardRef<View, Props>(function ResultCard(
         >
           あなたへのメッセージ
         </Text>
-        <Text style={{ fontSize: 30, lineHeight: 48, color: Colors.textSecondary }}>
+        <Text style={{ fontSize: 28, lineHeight: 44, color: Colors.textSecondary }}>
           {result.personality}
         </Text>
       </View>
 
-      <View
-        style={{
-          backgroundColor: Colors.luckyItem,
-          borderRadius: 24,
-          padding: 32,
-          marginBottom: 16,
-          borderLeftWidth: 8,
-          borderLeftColor: accent,
-        }}
-      >
-        <Text
+      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
+        <View
           style={{
-            fontSize: 28,
-            fontWeight: '700',
-            color: accent,
-            marginBottom: 12,
+            flex: 1,
+            backgroundColor: Colors.luckyItem,
+            borderRadius: 24,
+            padding: 24,
+            borderLeftWidth: 8,
+            borderLeftColor: accent,
           }}
         >
-          {LUCKY_HEADING[mode]}
-        </Text>
-        <Text style={{ fontSize: 30, lineHeight: 48, color: Colors.textSecondary }}>
-          {result.luckyItem}
-        </Text>
-      </View>
+          <Text
+            style={{
+              fontSize: 26,
+              fontWeight: '700',
+              color: accent,
+              marginBottom: 12,
+            }}
+          >
+            {LUCKY_HEADING[mode]}
+          </Text>
+          <Text style={{ fontSize: 26, lineHeight: 40, color: Colors.textSecondary }}>
+            {result.luckyItem}
+          </Text>
+        </View>
 
-      <View
-        style={{
-          backgroundColor: Colors.advice,
-          borderRadius: 24,
-          padding: 32,
-          marginBottom: 16,
-          borderLeftWidth: 8,
-          borderLeftColor: accent,
-        }}
-      >
-        <Text
+        <View
           style={{
-            fontSize: 28,
-            fontWeight: '700',
-            color: accent,
-            marginBottom: 12,
+            flex: 1,
+            backgroundColor: Colors.advice,
+            borderRadius: 24,
+            padding: 24,
+            borderLeftWidth: 8,
+            borderLeftColor: accent,
           }}
         >
-          ひとことアドバイス
-        </Text>
-        <Text style={{ fontSize: 30, lineHeight: 48, color: Colors.textSecondary }}>
-          {result.advice}
-        </Text>
+          <Text
+            style={{
+              fontSize: 26,
+              fontWeight: '700',
+              color: accent,
+              marginBottom: 12,
+            }}
+          >
+            ひとことアドバイス
+          </Text>
+          <Text style={{ fontSize: 26, lineHeight: 40, color: Colors.textSecondary }}>
+            {result.advice}
+          </Text>
+        </View>
       </View>
 
       <View
         style={{
           backgroundColor: Colors.card,
           borderRadius: 24,
-          padding: 32,
-          marginBottom: 24,
+          padding: 24,
+          marginBottom: 18,
           borderLeftWidth: 8,
           borderLeftColor: accent,
         }}
@@ -212,7 +214,7 @@ export const ResultCard = forwardRef<View, Props>(function ResultCard(
         >
           おすすめの話題
         </Text>
-        <Text style={{ fontSize: 30, lineHeight: 48, color: Colors.textSecondary }}>
+        <Text style={{ fontSize: 28, lineHeight: 44, color: Colors.textSecondary }}>
           {result.icebreaker}
         </Text>
       </View>

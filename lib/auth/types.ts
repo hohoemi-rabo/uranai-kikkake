@@ -4,4 +4,7 @@ export type AuthSession = {
   idToken: string;
   provider: Provider;
   sub: string;
+  name?: string;
+  email?: string;
+  pictureUrl?: string;
 };

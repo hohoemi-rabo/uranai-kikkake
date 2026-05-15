@@ -3,6 +3,7 @@ export const Colors = {
   palm: '#2DD4BF',
   match: '#FB923C',
   background: '#1E1B4B',
+  shareCanvas: '#F5F3FF',
   card: '#FFFFFF',
   cardAlt: '#F8FAFC',
   luckyItem: '#FFFBEB',

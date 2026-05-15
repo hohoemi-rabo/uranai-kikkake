@@ -27,14 +27,24 @@ const PKCE_STORE_KEY = 'oauth_pkce_pending';
 // startGoogleSignIn で新フロー開始時に null にリセットする。
 let inFlightCompletion: Promise<GoogleSignInOutcome> | null = null;
 
-function decodeJwtPayload(jwt: string): { sub?: string } | null {
+function decodeJwtPayload(jwt: string): {
+  sub?: string;
+  name?: string;
+  email?: string;
+  picture?: string;
+} | null {
   try {
     const [, payloadB64] = jwt.split('.');
     if (!payloadB64) return null;
     const normalized = payloadB64.replace(/-/g, '+').replace(/_/g, '/');
     const pad = (4 - (normalized.length % 4)) % 4;
     const padded = normalized + '='.repeat(pad);
-    return JSON.parse(globalThis.atob(padded)) as { sub?: string };
+    return JSON.parse(globalThis.atob(padded)) as {
+      sub?: string;
+      name?: string;
+      email?: string;
+      picture?: string;
+    };
   } catch {
     return null;
   }
@@ -214,7 +224,14 @@ async function runCompleteGoogleSignIn(params: {
 
     return {
       ok: true,
-      session: { idToken: tokens.idToken, provider: 'google', sub: payload.sub },
+      session: {
+        idToken: tokens.idToken,
+        provider: 'google',
+        sub: payload.sub,
+        name: payload.name,
+        email: payload.email,
+        pictureUrl: payload.picture,
+      },
     };
   } catch (e) {
     return {

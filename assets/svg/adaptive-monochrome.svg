@@ -1,10 +1,8 @@
 <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-  <!-- 4 点星(スパーク)シルエット、Android 13+ themed icon 用 -->
-  <!-- 中央 (512, 512) を基点、安全領域(中央 66%)に収める -->
-  <path d="M 512 192
-           C 512 320, 560 432, 832 512
-           C 560 592, 512 704, 512 832
-           C 512 704, 464 592, 192 512
-           C 464 432, 512 320, 512 192 Z"
-        fill="black"/>
+  <!-- Android 13+ themed icon 用、単色シルエット。OS が自動再着色するので塗り色は不問だが慣例で黒 -->
+  <!-- 安全領域(中央 66%)に「占」を収める -->
+  <text x="512" y="680"
+        font-family="Rounded Mplus 1c Black, sans-serif"
+        font-size="520" font-weight="900"
+        fill="black" text-anchor="middle">占</text>
 </svg>

@@ -50,13 +50,13 @@ if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
 
 **カード内テキストを `onBg` 系に変えると白カード上で読めなくなる**、逆に **画面背景上のテキストを `textPrimary` のまま放置すると濃色背景に同化して見えなくなる**。新しい画面を追加するときはまずどちらに乗るか判断する。
 
-`ResultCard`(画像化保存される結果カード)は **常に白背景** なので、内部テキストは全部 `textPrimary` 系のまま据え置き。
+`ResultCard`(画像化保存される結果カード)は **保存画像専用のキャンバス**(`Colors.shareCanvas` = `#F5F3FF` 薄ラベンダー)を使う。これは `Colors.background`(アプリ画面の濃紺)とは別物。**保存画像は LINE / SNS / フォトアルバムで見られる外部 artifact** なので、共有先で常に読めるように明色固定にしている。内部テキストは全部 `textPrimary` 系のまま据え置き。
 
 ### タブごとのアクセントカラー
 
 | タブ | アクセント | クラス例 |
 |------|----------|--------|
-| 🌟 魅力発見 | コーラルピンク `rose-400` | `bg-rose-400`、`border-rose-400` |
+| 🌟 顔相(UI 上の表示。コンセプト名は「魅力発見モード」) | コーラルピンク `rose-400` | `bg-rose-400`、`border-rose-400` |
 | ✋ 手相 | ティール `teal-400` | `bg-teal-400`、`border-teal-400` |
 | 💖 相性 | オレンジ `orange-400` | `bg-orange-400`、`border-orange-400` |
 

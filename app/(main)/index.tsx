@@ -8,7 +8,9 @@ import { HintText } from '@/components/HintText';
 import { ScreenBackground } from '@/components/ScreenBackground';
 import { TabSwitcher } from '@/components/TabSwitcher';
 import { UsageBadge } from '@/components/UsageBadge';
+import { UserAvatar } from '@/components/UserAvatar';
 import { TabAccent, type TabKey } from '@/constants/theme';
+import { useAuth } from '@/hooks/useAuth';
 import { useUsage } from '@/hooks/useUsage';
 
 const TAB_BG: Record<TabKey, string> = {
@@ -20,6 +22,7 @@ const TAB_BG: Record<TabKey, string> = {
 export default function HomeScreen() {
   const router = useRouter();
   const { remaining } = useUsage();
+  const { session } = useAuth();
   const [tab, setTab] = useState<TabKey>('charm');
   const [picking, setPicking] = useState(false);
   const [hintVisible, setHintVisible] = useState(false);
@@ -86,6 +89,7 @@ export default function HomeScreen() {
           <Text className="text-2xl">⚙️</Text>
         </Pressable>
         <UsageBadge />
+        <UserAvatar session={session} size={40} />
       </View>
 
       <View className="flex-1 px-6 pt-2 justify-between pb-6">
@@ -103,10 +107,10 @@ export default function HomeScreen() {
         </View>
 
         <View>
-          <View className="mb-2">
-            <HintText tab={tab} />
-          </View>
+          <HintText tab={tab} />
+        </View>
 
+        <View>
           <Pressable
             onPress={handleHint}
             className="self-center mb-3 py-2 px-4 active:opacity-60"

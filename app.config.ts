@@ -29,7 +29,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: IS_PROD ? BUNDLE_BASE : `${BUNDLE_BASE}.dev`,
     adaptiveIcon: {
-      backgroundColor: '#F5F3FF',
+      backgroundColor: '#1E1B4B',
       foregroundImage: './assets/images/android-icon-foreground.png',
       backgroundImage: './assets/images/android-icon-background.png',
       monochromeImage: './assets/images/android-icon-monochrome.png',

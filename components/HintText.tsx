@@ -1,10 +1,4 @@
-import { useEffect } from 'react';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
+import { Text } from 'react-native';
 
 import { TabAccent, type TabKey } from '@/constants/theme';
 
@@ -12,21 +6,19 @@ type Props = {
   tab: TabKey;
 };
 
+const DESCRIPTIONS: Record<TabKey, string> = {
+  charm: 'あなたの魅力を見つけて\n会話のキッカケに',
+  palm: '手のひらから今日の運勢を占います',
+  match: 'ふたりの相性をスコアで診断します',
+};
+
 export function HintText({ tab }: Props) {
-  const opacity = useSharedValue(1);
-
-  useEffect(() => {
-    opacity.value = withRepeat(withTiming(0.35, { duration: 900 }), -1, true);
-  }, [opacity]);
-
-  const animStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
-
   return (
-    <Animated.Text
-      style={[{ color: TabAccent[tab] }, animStyle]}
+    <Text
+      style={{ color: TabAccent[tab] }}
       className="text-center text-lg font-rounded-bold"
     >
-      タップしてはじめよう
-    </Animated.Text>
+      {DESCRIPTIONS[tab]}
+    </Text>
   );
 }

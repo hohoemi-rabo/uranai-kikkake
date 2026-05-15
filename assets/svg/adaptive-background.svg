@@ -1,10 +1,18 @@
 <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FB7185"/>
-      <stop offset="50%" stop-color="#2DD4BF"/>
-      <stop offset="100%" stop-color="#FB923C"/>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1E1B4B"/>
+      <stop offset="55%" stop-color="#4C1D95"/>
+      <stop offset="100%" stop-color="#5B21B6"/>
     </linearGradient>
+    <symbol id="sparkle" viewBox="-200 -200 400 400">
+      <path d="M 0 -180 C 0 -60, 40 -40, 180 0 C 40 40, 0 60, 0 180 C 0 60, -40 40, -180 0 C -40 -40, 0 -60, 0 -180 Z"/>
+    </symbol>
   </defs>
-  <rect width="1024" height="1024" fill="url(#grad)"/>
+  <rect width="1024" height="1024" fill="url(#bgGrad)"/>
+  <!-- マスクで切られる外側にも控えめなスパーク(adaptive のフォアグラウンドが回転しても破綻しないよう、四隅から中央寄りに置く) -->
+  <use href="#sparkle" x="180" y="220" width="90" height="90" fill="#FDE047" opacity="0.5"/>
+  <use href="#sparkle" x="780" y="180" width="120" height="120" fill="#FDE047" opacity="0.6"/>
+  <use href="#sparkle" x="140" y="760" width="100" height="100" fill="#FDE047" opacity="0.45"/>
+  <use href="#sparkle" x="820" y="790" width="75" height="75" fill="#FDE047" opacity="0.4"/>
 </svg>

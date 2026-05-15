@@ -75,7 +75,7 @@ export default function LoginScreen() {
   return (
     <ScreenBackground>
       <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-7xl">🔮</Text>
+        <Text className="text-7xl" style={{ lineHeight: 96 }}>🔮</Text>
         <Text className="mt-6 text-3xl font-rounded-black text-white">
           占いキッカケ
         </Text>

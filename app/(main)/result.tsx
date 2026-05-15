@@ -18,7 +18,7 @@ import { useSaveImage } from '@/hooks/useSaveImage';
 import { useSpeech } from '@/hooks/useSpeech';
 
 const MODE_LABEL: Record<TabKey, string> = {
-  charm: '🌟 魅力発見',
+  charm: '🌟 顔相',
   palm: '✋ 手相',
   match: '💖 相性',
 };

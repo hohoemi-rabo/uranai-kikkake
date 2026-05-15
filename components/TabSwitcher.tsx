@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import type { TabKey } from '@/constants/theme';
 
 const TABS: { key: TabKey; emoji: string; label: string; bgClass: string }[] = [
-  { key: 'charm', emoji: '🌟', label: '魅力発見', bgClass: 'bg-charm' },
+  { key: 'charm', emoji: '🌟', label: '顔相', bgClass: 'bg-charm' },
   { key: 'palm', emoji: '✋', label: '手相', bgClass: 'bg-palm' },
   { key: 'match', emoji: '💖', label: '相性', bgClass: 'bg-match' },
 ];
