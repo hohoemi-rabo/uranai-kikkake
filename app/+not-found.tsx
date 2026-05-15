@@ -9,7 +9,7 @@ export default function NotFoundScreen() {
   return (
     <ScreenBackground>
       <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-7xl">🔮</Text>
+        <Text className="text-7xl" style={{ lineHeight: 96 }}>🔮</Text>
         <Text className="mt-6 text-2xl font-rounded-bold text-white text-center">
           ページが見つかりません
         </Text>
