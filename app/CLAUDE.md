@@ -34,7 +34,23 @@ if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
 
 - Tailwind 文法でスタイル指定。Web 版資産を流用しやすい。
 - アクセントカラーは `tailwind.config.js` の `theme.extend.colors` に `charm` / `palm` / `match` を定義する。
-- ベース背景は `bg-sky-50`、カードは `bg-white` か `bg-slate-50`、開運アイテムは `bg-amber-50`、アドバイスは `bg-emerald-50`(REQUIREMENTS §5.1.1)。
+- **ベース背景は濃色グラデ**(`#1E1B4B` → `#581C87` → `#831843` の縦 3 stop、`constants/theme.ts` の `BackgroundGradient`)。占いらしい神秘的な見た目を優先しつつ、カード(`bg-white`)で可読性を担保する設計。
+- 個別画面のカードは `bg-white`、サブカードは `bg-slate-50`、開運アイテムは `bg-amber-50`、アドバイスは `bg-emerald-50`。
+- **画面背景は `<SafeAreaView className="bg-violet-50">` ではなく `<ScreenBackground>`**(`components/ScreenBackground.tsx`)を使う。`expo-linear-gradient` + `SafeAreaView` をラップした共通コンポーネントで、`edges` を prop で受ける。
+- REQUIREMENTS §5.1.1 は元々明色テーマを前提に書かれているが、**実装はダーク基調が正**(2026-05 にユーザー判断で方針変更)。要件文書側の更新は未着手。
+
+### テキスト色の二系統(超重要)
+
+濃色グラデ背景 + 白カードの二重構造のため、テキスト色は **どこに乗るか** で使い分ける:
+
+| 配置 | 色変数 / クラス例 | 用途 |
+|------|-----------------|------|
+| **白カード上** | `Colors.textPrimary` / `textSecondary` / `textMuted` / `textSubtle`、`text-slate-500〜900` | カード内の本文・見出し・キャプション |
+| **濃色グラデ上** | `Colors.onBg` / `onBgMuted` / `onBgSubtle`、`text-white` / `text-slate-200` / `text-slate-300` | 画面ヘッダ、戻るボタン、セクションラベル、注釈 |
+
+**カード内テキストを `onBg` 系に変えると白カード上で読めなくなる**、逆に **画面背景上のテキストを `textPrimary` のまま放置すると濃色背景に同化して見えなくなる**。新しい画面を追加するときはまずどちらに乗るか判断する。
+
+`ResultCard`(画像化保存される結果カード)は **常に白背景** なので、内部テキストは全部 `textPrimary` 系のまま据え置き。
 
 ### タブごとのアクセントカラー
 
@@ -55,7 +71,8 @@ if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
 ## シニア配慮 UI(必須)
 
 - ボタンは最低 `p-5` `text-lg` 以上
-- 明るくコントラストの高い色 — **ダークモードは採用しない**
+- **濃色グラデ背景 + 白カードの組み合わせで可読性を確保**(2026-05 方針変更、上の「NativeWind v4 とテーマ」参照)。OS のダークモード追従(`userInterfaceStyle: 'system'`)は採用しない、常にこのテーマで固定
+- 白カード上のテキストは引き続き濃色(`Colors.textPrimary` 等)、グラデ上のテキストは明色(`Colors.onBg` 等)で **コントラスト比 7:1 相当** を維持
 - 平易な日本語(「カメラを切り替える」「ここに顔を合わせてね」)
 - 絵文字+文字で視覚的に伝える
 - 通知許可リクエストはしない(ほほ笑みラボ方針)

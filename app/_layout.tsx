@@ -44,7 +44,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
           marginTop: 16,
           fontSize: 22,
           fontWeight: '700',
-          color: Colors.textPrimary,
+          color: Colors.onBg,
           textAlign: 'center',
         }}
       >
@@ -54,7 +54,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
         style={{
           marginTop: 8,
           fontSize: 15,
-          color: Colors.textMuted,
+          color: Colors.onBgMuted,
           textAlign: 'center',
           lineHeight: 22,
         }}
@@ -80,7 +80,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
           style={{
             marginTop: 24,
             fontSize: 12,
-            color: Colors.textMuted,
+            color: Colors.onBgSubtle,
             textAlign: 'center',
           }}
         >
@@ -120,7 +120,7 @@ function RootContent() {
         <Stack.Screen name="(auth)" />
       </Stack>
       {!onboardingDone && <Redirect href="/(auth)/onboarding" />}
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
     </GestureHandlerRootView>
   );
 }

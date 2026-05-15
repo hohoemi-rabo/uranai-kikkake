@@ -6,6 +6,7 @@ import { Alert, Linking, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ModeFrameOverlay } from '@/components/CameraFrame';
+import { ScreenBackground } from '@/components/ScreenBackground';
 import { TabAccent, type TabKey } from '@/constants/theme';
 
 function isTabKey(v: unknown): v is TabKey {
@@ -28,13 +29,13 @@ export default function CameraScreen() {
 
   if (!permission.granted) {
     return (
-      <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
+      <ScreenBackground edges={['top', 'bottom']}>
         <View className="flex-1 px-6 items-center justify-center">
           <Text className="text-6xl">📷</Text>
-          <Text className="mt-6 text-2xl font-rounded-bold text-slate-900 text-center">
+          <Text className="mt-6 text-2xl font-rounded-bold text-white text-center">
             カメラの使用を許可してください
           </Text>
-          <Text className="mt-3 text-base font-rounded text-slate-600 text-center">
+          <Text className="mt-3 text-base font-rounded text-slate-200 text-center">
             人相・手相を診断するためにカメラを使用します
           </Text>
           <View className="mt-10 w-full">
@@ -52,19 +53,19 @@ export default function CameraScreen() {
                 onPress={() => Linking.openSettings()}
                 className="mt-4 p-3 active:opacity-60"
               >
-                <Text className="text-center text-base font-rounded text-slate-600 underline">
+                <Text className="text-center text-base font-rounded text-slate-200 underline">
                   設定アプリで許可する
                 </Text>
               </Pressable>
             )}
             <Pressable onPress={() => router.back()} className="mt-2 p-3 active:opacity-60">
-              <Text className="text-center text-sm font-rounded text-slate-500 underline">
+              <Text className="text-center text-sm font-rounded text-slate-300 underline">
                 戻る
               </Text>
             </Pressable>
           </View>
         </View>
-      </SafeAreaView>
+      </ScreenBackground>
     );
   }
 

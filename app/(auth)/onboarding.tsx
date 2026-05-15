@@ -8,8 +8,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { ScreenBackground } from '@/components/ScreenBackground';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
 type Slide = {
@@ -78,7 +77,7 @@ export default function OnboardingScreen() {
   const isLast = index === SLIDES.length - 1;
 
   return (
-    <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
+    <ScreenBackground edges={['top', 'bottom']}>
       <GestureDetector gesture={swipe}>
         <View className="flex-1">
           <Animated.View
@@ -94,10 +93,10 @@ export default function OnboardingScreen() {
                 className="items-center justify-center px-8"
               >
                 <Text className="text-7xl">{s.emoji}</Text>
-                <Text className="mt-6 text-3xl font-rounded-black text-slate-900 text-center">
+                <Text className="mt-6 text-3xl font-rounded-black text-white text-center">
                   {s.title}
                 </Text>
-                <Text className="mt-4 text-lg font-rounded text-slate-700 text-center leading-7">
+                <Text className="mt-4 text-lg font-rounded text-slate-200 text-center leading-7">
                   {s.body}
                 </Text>
               </View>
@@ -109,7 +108,7 @@ export default function OnboardingScreen() {
               <View
                 key={i}
                 className={`h-2 w-2 rounded-full ${
-                  i === index ? 'bg-charm' : 'bg-slate-300'
+                  i === index ? 'bg-charm' : 'bg-white/30'
                 }`}
               />
             ))}
@@ -127,6 +126,6 @@ export default function OnboardingScreen() {
           </View>
         </View>
       </GestureDetector>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }

@@ -8,9 +8,9 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ResultCard } from '@/components/ResultCard';
+import { ScreenBackground } from '@/components/ScreenBackground';
 import { TypewriterText } from '@/components/TypewriterText';
 import { Colors, isTabKey, type TabKey } from '@/constants/theme';
 import type { DivineResultBody } from '@/hooks/useDivine';
@@ -115,10 +115,10 @@ export default function ResultScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
+    <ScreenBackground edges={['top', 'bottom']}>
       <View className="flex-row items-center justify-between px-6 pt-2 pb-3">
         <Pressable onPress={() => router.replace('/(main)')} className="p-2 active:opacity-60">
-          <Text className="text-base font-rounded-bold text-slate-700">← 最初に戻る</Text>
+          <Text className="text-base font-rounded-bold text-slate-200">← 最初に戻る</Text>
         </Pressable>
         <View className="px-3 py-1 rounded-full" style={{ backgroundColor: accent }}>
           <Text className="text-sm font-rounded-bold text-white">{MODE_LABEL[mode]}</Text>
@@ -296,7 +296,7 @@ export default function ResultScreen() {
           </Pressable>
         </View>
 
-        <Text className="text-xs text-slate-500 text-center font-rounded pt-2">
+        <Text className="text-xs text-slate-300 text-center font-rounded pt-2">
           ※ 占いはエンターテイメントです。会話のきっかけとしてお楽しみください。
         </Text>
       </ScrollView>
@@ -314,6 +314,6 @@ export default function ResultScreen() {
           />
         </View>
       ) : null}
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }

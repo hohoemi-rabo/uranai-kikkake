@@ -1,18 +1,19 @@
 import { useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { ScreenBackground } from '@/components/ScreenBackground';
 
 export default function NotFoundScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-violet-50">
+    <ScreenBackground>
       <View className="flex-1 items-center justify-center px-8">
         <Text className="text-7xl">🔮</Text>
-        <Text className="mt-6 text-2xl font-rounded-bold text-slate-900 text-center">
+        <Text className="mt-6 text-2xl font-rounded-bold text-white text-center">
           ページが見つかりません
         </Text>
-        <Text className="mt-3 text-base font-rounded text-slate-600 text-center leading-6">
+        <Text className="mt-3 text-base font-rounded text-slate-200 text-center leading-6">
           お探しの画面は見つかりませんでした。{'\n'}ホームからやりなおしてください。
         </Text>
         <Pressable
@@ -24,6 +25,6 @@ export default function NotFoundScreen() {
           </Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }

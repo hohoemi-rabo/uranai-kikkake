@@ -55,7 +55,7 @@ export default function GoogleCallback() {
     >
       <ActivityIndicator size="large" color={Colors.charm} />
       <Text
-        className="mt-4 text-base font-rounded text-slate-700"
+        className="mt-4 text-base font-rounded text-slate-200"
       >
         ログイン処理中…
       </Text>

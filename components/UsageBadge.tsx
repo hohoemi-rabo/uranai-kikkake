@@ -8,10 +8,10 @@ export function UsageBadge() {
 
   const isEmpty = remaining <= 0;
   return (
-    <View className={`px-3 py-2 rounded-full ${isEmpty ? 'bg-slate-300' : 'bg-white'}`}>
+    <View className={`px-3 py-2 rounded-full ${isEmpty ? 'bg-white/20' : 'bg-white'}`}>
       <Text
         className={`text-sm font-rounded-bold ${
-          isEmpty ? 'text-slate-500' : 'text-slate-700'
+          isEmpty ? 'text-slate-200' : 'text-slate-700'
         }`}
       >
         今日の残り: {remaining}回

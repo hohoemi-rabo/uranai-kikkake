@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenBackground } from '@/components/ScreenBackground';
 import { useAuth } from '@/hooks/useAuth';
 import { startGoogleSignIn } from '@/lib/auth/google';
 
@@ -73,19 +73,19 @@ function GoogleLoginButton() {
 
 export default function LoginScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-violet-50">
+    <ScreenBackground>
       <View className="flex-1 items-center justify-center px-6">
         <Text className="text-7xl">🔮</Text>
-        <Text className="mt-6 text-3xl font-rounded-black text-slate-900">
+        <Text className="mt-6 text-3xl font-rounded-black text-white">
           占いキッカケ
         </Text>
-        <Text className="mt-2 text-base font-rounded text-slate-600">
+        <Text className="mt-2 text-base font-rounded text-slate-200">
           ログインしてはじめましょう
         </Text>
         <View className="mt-12 w-full">
           {AUTH_MODE === 'google' ? <GoogleLoginButton /> : <StubLoginButton />}
         </View>
       </View>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }

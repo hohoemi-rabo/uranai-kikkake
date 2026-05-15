@@ -2,10 +2,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Linking, Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HintModal } from '@/components/HintModal';
 import { HintText } from '@/components/HintText';
+import { ScreenBackground } from '@/components/ScreenBackground';
 import { TabSwitcher } from '@/components/TabSwitcher';
 import { UsageBadge } from '@/components/UsageBadge';
 import { TabAccent, type TabKey } from '@/constants/theme';
@@ -25,8 +25,8 @@ export default function HomeScreen() {
   const [hintVisible, setHintVisible] = useState(false);
 
   const isEmpty = remaining <= 0;
-  const cameraBg = isEmpty ? 'bg-slate-300' : TAB_BG[tab];
-  const cameraTextColor = isEmpty ? 'text-slate-500' : 'text-white';
+  const cameraBg = isEmpty ? 'bg-white/20' : TAB_BG[tab];
+  const cameraTextColor = isEmpty ? 'text-slate-300' : 'text-white';
 
   const handleCamera = () => {
     router.push({ pathname: '/(main)/camera', params: { mode: tab } });
@@ -80,7 +80,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
+    <ScreenBackground edges={['top', 'bottom']}>
       <View className="flex-row items-center justify-between px-4 pt-2 pb-2">
         <Pressable onPress={handleSettings} className="p-2 active:opacity-60">
           <Text className="text-2xl">⚙️</Text>
@@ -90,10 +90,10 @@ export default function HomeScreen() {
 
       <View className="flex-1 px-6 pt-2 justify-between pb-6">
         <View>
-          <Text className="text-center text-3xl font-rounded-black text-slate-900">
+          <Text className="text-center text-3xl font-rounded-black text-white">
             占いキッカケ
           </Text>
-          <Text className="text-center mt-1 text-base font-rounded text-slate-500">
+          <Text className="text-center mt-1 text-base font-rounded text-slate-200">
             会話がもっと楽しくなる
           </Text>
 
@@ -133,13 +133,13 @@ export default function HomeScreen() {
             disabled={isEmpty || picking}
             onPress={handlePicker}
             className={`mt-3 p-5 rounded-2xl active:opacity-80 ${
-              isEmpty ? 'bg-slate-300' : 'bg-white border-2'
+              isEmpty ? 'bg-white/20' : 'bg-white border-2'
             }`}
             style={!isEmpty ? { borderColor: TabAccent[tab] } : undefined}
           >
             <Text
               className={`text-center text-xl font-rounded-bold ${
-                isEmpty ? 'text-slate-500' : ''
+                isEmpty ? 'text-slate-300' : ''
               }`}
               style={!isEmpty ? { color: TabAccent[tab] } : undefined}
             >
@@ -154,6 +154,6 @@ export default function HomeScreen() {
         mode={tab}
         onClose={() => setHintVisible(false)}
       />
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }

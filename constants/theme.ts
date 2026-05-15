@@ -2,7 +2,7 @@ export const Colors = {
   charm: '#FB7185',
   palm: '#2DD4BF',
   match: '#FB923C',
-  background: '#F5F3FF',
+  background: '#1E1B4B',
   card: '#FFFFFF',
   cardAlt: '#F8FAFC',
   luckyItem: '#FFFBEB',
@@ -11,6 +11,15 @@ export const Colors = {
   textSecondary: '#1E293B',
   textMuted: '#64748B',
   textSubtle: '#475569',
+  onBg: '#F8FAFC',
+  onBgMuted: '#CBD5E1',
+  onBgSubtle: '#94A3B8',
+} as const;
+
+export const BackgroundGradient = {
+  colors: ['#1E1B4B', '#581C87', '#831843'] as const,
+  start: { x: 0, y: 0 },
+  end: { x: 0, y: 1 },
 } as const;
 
 export type TabKey = 'charm' | 'palm' | 'match';

@@ -2,8 +2,8 @@ import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenBackground } from '@/components/ScreenBackground';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
@@ -72,12 +72,12 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-violet-50" edges={['top', 'bottom']}>
+    <ScreenBackground edges={['top', 'bottom']}>
       <View className="flex-row items-center justify-between px-4 pt-2 pb-3">
         <Pressable onPress={() => router.back()} className="p-2 active:opacity-60">
-          <Text className="text-base font-rounded-bold text-slate-700">← 戻る</Text>
+          <Text className="text-base font-rounded-bold text-slate-200">← 戻る</Text>
         </Pressable>
-        <Text className="text-lg font-rounded-bold text-slate-800">⚙️ 設定</Text>
+        <Text className="text-lg font-rounded-bold text-white">⚙️ 設定</Text>
         <View className="w-12" />
       </View>
 
@@ -86,7 +86,7 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View>
-          <Text className="text-sm font-rounded-bold text-slate-500 mb-2 ml-1">
+          <Text className="text-sm font-rounded-bold text-slate-300 mb-2 ml-1">
             アプリについて
           </Text>
           <View className="bg-white rounded-2xl p-5">
@@ -100,7 +100,7 @@ export default function SettingsScreen() {
         </View>
 
         <View>
-          <Text className="text-sm font-rounded-bold text-slate-500 mb-2 ml-1">
+          <Text className="text-sm font-rounded-bold text-slate-300 mb-2 ml-1">
             メニュー
           </Text>
           <View className="bg-white rounded-2xl overflow-hidden">
@@ -112,7 +112,7 @@ export default function SettingsScreen() {
         </View>
 
         <View>
-          <Text className="text-sm font-rounded-bold text-slate-500 mb-2 ml-1">
+          <Text className="text-sm font-rounded-bold text-slate-300 mb-2 ml-1">
             アカウント
           </Text>
           <View className="bg-white rounded-2xl overflow-hidden">
@@ -129,7 +129,7 @@ export default function SettingsScreen() {
 
         {/* フェーズ 1.1 で履歴・お気に入りを追加予定 */}
       </ScrollView>
-    </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
