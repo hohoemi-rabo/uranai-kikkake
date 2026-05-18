@@ -1,0 +1,49 @@
+<svg viewBox="0 0 4096 2304" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 濃紺グラデ(占キッカケのテーマと完全に揃える) -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1E1B4B"/>
+      <stop offset="55%" stop-color="#4C1D95"/>
+      <stop offset="100%" stop-color="#5B21B6"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="60%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <symbol id="sparkle" viewBox="-200 -200 400 400">
+      <path d="M 0 -180 C 0 -60, 40 -40, 180 0 C 40 40, 0 60, 0 180 C 0 60, -40 40, -180 0 C -40 -40, 0 -60, 0 -180 Z"/>
+    </symbol>
+  </defs>
+
+  <!-- 背景: 濃紺グラデ(対角線方向) -->
+  <rect width="4096" height="2304" fill="url(#bgGrad)"/>
+
+  <!-- 装飾の小スパーク(四隅 + 中央寄りに散らす) -->
+  <use href="#sparkle" x="240" y="240" width="160" height="160" fill="#FDE047" opacity="0.55"/>
+  <use href="#sparkle" x="3760" y="280" width="200" height="200" fill="#FDE047" opacity="0.7"/>
+  <use href="#sparkle" x="320" y="1900" width="140" height="140" fill="#FDE047" opacity="0.5"/>
+  <use href="#sparkle" x="3700" y="1880" width="180" height="180" fill="#FDE047" opacity="0.6"/>
+  <use href="#sparkle" x="1100" y="500" width="100" height="100" fill="#FDE047" opacity="0.4"/>
+  <use href="#sparkle" x="2950" y="1750" width="120" height="120" fill="#FDE047" opacity="0.45"/>
+
+  <!-- 上部の細いゴールドライン(装飾) -->
+  <rect x="1448" y="940" width="1200" height="6" fill="url(#goldGrad)" opacity="0.7"/>
+
+  <!-- メインワードマーク: ほほ笑みラボ(ゴールド、中央配置) -->
+  <text x="2048" y="1240"
+        font-family="Rounded Mplus 1c Black, sans-serif"
+        font-size="360" font-weight="900"
+        fill="url(#goldGrad)" text-anchor="middle"
+        letter-spacing="20">ほほ笑みラボ</text>
+
+  <!-- サブワードマーク: HOHOEMI LAB(英字、控えめ) -->
+  <text x="2048" y="1430"
+        font-family="Rounded Mplus 1c, sans-serif"
+        font-size="100" font-weight="400"
+        fill="#CBD5E1" text-anchor="middle"
+        letter-spacing="40">HOHOEMI LAB</text>
+
+  <!-- 下部の細いゴールドライン(装飾) -->
+  <rect x="1648" y="1530" width="800" height="6" fill="url(#goldGrad)" opacity="0.7"/>
+</svg>

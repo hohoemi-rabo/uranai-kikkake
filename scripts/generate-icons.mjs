@@ -18,9 +18,12 @@ const ADAPTIVE_FG_SVG = join(SVG_DIR, 'adaptive-foreground.svg');
 const ADAPTIVE_BG_SVG = join(SVG_DIR, 'adaptive-background.svg');
 const ADAPTIVE_MONO_SVG = join(SVG_DIR, 'adaptive-monochrome.svg');
 const FEATURE_SVG = join(SVG_DIR, 'feature-graphic.svg');
+// Play Console のデベロッパープロフィール用(ほほ笑みラボのブランドアセット)
+const DEV_ICON_SVG = join(SVG_DIR, 'dev-icon.svg');
+const DEV_HEADER_SVG = join(SVG_DIR, 'dev-header.svg');
 
-async function svgToPng(svgPath, outPath, { width, height, flatten } = {}) {
-  let pipe = sharp(svgPath, { density: 384 });
+async function svgToPng(svgPath, outPath, { width, height, flatten, density = 384 } = {}) {
+  let pipe = sharp(svgPath, { density, limitInputPixels: false });
   if (width || height) pipe = pipe.resize(width, height);
   if (flatten) pipe = pipe.flatten({ background: flatten });
   await pipe.png().toFile(outPath);
@@ -66,6 +69,22 @@ await svgToPng(FEATURE_SVG, join(STORE_DIR, 'play-feature-graphic-1024x500.png')
   width: 1024,
   height: 500,
   flatten: DARK_BG,
+});
+
+console.log('Generating Play Console developer profile assets:');
+// Play Console デベロッパーアイコン: 512x512、JPEG/PNG 非透過、最大 1MB
+await svgToPng(DEV_ICON_SVG, join(STORE_DIR, 'play-developer-icon-512.png'), {
+  width: 512,
+  height: 512,
+  flatten: DARK_BG,
+});
+// Play Console デベロッパーヘッダー: 4096x2304、JPEG/PNG 非透過、最大 1MB
+// density=96(デフォルト) を指定 — 大きい出力サイズ + 高 density だと sharp が中間バッファで pixel limit に当たる
+await svgToPng(DEV_HEADER_SVG, join(STORE_DIR, 'play-developer-header-4096x2304.png'), {
+  width: 4096,
+  height: 2304,
+  flatten: DARK_BG,
+  density: 96,
 });
 
 console.log('\nDone.');
