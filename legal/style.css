@@ -38,16 +38,42 @@ h2 {
   color: var(--accent);
 }
 
+h3 {
+  font-size: 19px;
+  margin-top: 28px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
 p {
   margin: 12px 0;
 }
 
-ul {
+ul, ol {
   padding-left: 24px;
 }
 
 li {
   margin-bottom: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 16px;
+}
+
+th, td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #ede9fe;
+  font-weight: 700;
 }
 
 a {

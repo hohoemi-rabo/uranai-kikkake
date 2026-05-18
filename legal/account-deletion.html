@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>アカウント削除のご案内 | 占いキッカケ</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<main>
+  <h1>アカウント削除のご案内</h1>
+  <p>モバイルアプリ「<strong>占いキッカケ</strong>」(開発・運営: <strong>ほほ笑みラボ</strong>)では、ユーザーの皆さまがアカウントと関連データの削除をいつでもリクエストできます。本ページでは、その手順と削除されるデータの内容、保持期間について説明します。</p>
+
+  <h2>1. 削除をリクエストする方法</h2>
+  <p>以下のいずれかの方法で、アカウントおよび関連データの削除をリクエストできます。</p>
+
+  <h3>方法 A. アプリ内でログアウトする(即時)</h3>
+  <ol>
+    <li>「占いキッカケ」アプリを起動します。</li>
+    <li>ホーム画面の左上、⚙️ アイコンをタップして設定画面を開きます。</li>
+    <li>画面下部の「<strong>ログアウト</strong>」をタップします。</li>
+    <li>確認ダイアログで「ログアウト」を選択します。</li>
+  </ol>
+  <p>ログアウトすると、端末内に保存されている認証情報(ID トークン・名前・プロフィール画像 URL 等)が <strong>即時削除</strong> されます。</p>
+
+  <h3>方法 B. メールで削除をリクエストする(サーバ側を含む完全削除)</h3>
+  <p>サーバ側の利用回数カウンタも含めた完全削除をご希望の場合は、以下のメールアドレスまでご連絡ください。</p>
+  <p>連絡先: <a href="mailto:rabo.hohoemi@gmail.com?subject=%E5%8D%A0%E3%81%84%E3%82%AD%E3%83%83%E3%82%AB%E3%82%B1%E3%81%AE%E3%82%A2%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88%E5%89%8A%E9%99%A4%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88">rabo.hohoemi@gmail.com</a></p>
+  <p>メール件名は「占いキッカケのアカウント削除リクエスト」、本文に <strong>ログインに使用している Google アカウントのメールアドレス</strong> をご記入ください。原則 5 営業日以内に削除を完了します。</p>
+
+  <h3>方法 C. Google アカウント側でアプリのアクセス許可を取り消す</h3>
+  <p>Google アカウントの管理画面から、占いキッカケへのアクセス許可を取り消すこともできます。</p>
+  <ol>
+    <li><a href="https://myaccount.google.com/permissions">https://myaccount.google.com/permissions</a> にアクセスします。</li>
+    <li>一覧から「占いキッカケ」を選択します。</li>
+    <li>「アクセス権を削除」をクリックします。</li>
+  </ol>
+
+  <h2>2. 削除されるデータと保持期間</h2>
+
+  <h3>2.1 端末ローカルに保存されるデータ(SecureStore)</h3>
+  <ul>
+    <li>認証 ID トークン</li>
+    <li>Google アカウントの識別子(<code>sub</code>)</li>
+    <li>名前・メールアドレス・プロフィール画像 URL(ヘッダーのアバター表示用)</li>
+  </ul>
+  <p>これらは <strong>ログアウト時に即時削除</strong> されます。アプリのアンインストールでも同様に削除されます。</p>
+
+  <h3>2.2 サーバ側に保存されるデータ(Cloudflare KV)</h3>
+  <ul>
+    <li>1 日 3 回の利用制限を管理するための <strong>利用回数カウンタ</strong>(認証 ID と日付に紐付くもの)</li>
+  </ul>
+  <p>このデータは <strong>最大 48 時間で自動削除</strong> されます(日跨ぎ後の自動失効)。メールで完全削除リクエストをいただいた場合は、5 営業日以内にこのデータも手動削除します。</p>
+
+  <h3>2.3 保存されないデータ</h3>
+  <ul>
+    <li><strong>占いに使用した写真</strong>: 当方のサーバには一切保存しません。診断のために Google の Gemini API に送信完了後、ただちに破棄します。</li>
+    <li><strong>占いの結果テキスト</strong>: 当方のサーバには一切保存しません。生成後、端末に返却して破棄します。</li>
+    <li>個人を特定可能な情報(氏名・住所・電話番号等): 取得・保存しません。</li>
+  </ul>
+
+  <h2>3. 削除完了までの目安時間</h2>
+  <table>
+    <thead>
+      <tr><th>削除手段</th><th>対象データ</th><th>所要時間</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>アプリ内ログアウト</td><td>端末ローカル(SecureStore)</td><td>即時</td></tr>
+      <tr><td>自動失効</td><td>サーバ側利用回数カウンタ</td><td>最大 48 時間</td></tr>
+      <tr><td>メールリクエスト</td><td>すべて(完全削除)</td><td>5 営業日以内</td></tr>
+      <tr><td>Google アカウント側で許可取消</td><td>OAuth トークン発行の停止</td><td>即時</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. お問い合わせ</h2>
+  <p>削除リクエストに関するご質問や、その他のプライバシーに関するご相談は以下までご連絡ください。</p>
+  <p>連絡先: <a href="mailto:rabo.hohoemi@gmail.com">rabo.hohoemi@gmail.com</a></p>
+  <p>関連情報: <a href="./privacy.html">プライバシーポリシー</a> / <a href="./terms.html">利用規約</a></p>
+
+  <p class="meta">最終更新日: 2026 年 5 月 18 日<br>発行者: ほほ笑みラボ</p>
+</main>
+</body>
+</html>
